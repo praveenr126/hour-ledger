@@ -149,6 +149,55 @@ class MyJobApplication {
   }
 }
 
+class ShiftSummary {
+  const ShiftSummary({
+    required this.workerId,
+    required this.checkedInAt,
+    required this.checkinDistanceM,
+    required this.completedChecklist,
+    required this.checkedOutAt,
+    required this.actualMinutes,
+    required this.payableMinutes,
+    required this.grossEarnedPaise,
+    required this.workerPayoutPaise,
+    required this.platformFeePaise,
+    required this.posterRefundPaise,
+    required this.approvedAt,
+  });
+
+  final String workerId;
+  final String? checkedInAt;
+  final int? checkinDistanceM;
+  final List<String> completedChecklist;
+  final String? checkedOutAt;
+  final int? actualMinutes;
+  final int? payableMinutes;
+  final int? grossEarnedPaise;
+  final int? workerPayoutPaise;
+  final int? platformFeePaise;
+  final int? posterRefundPaise;
+  final String? approvedAt;
+
+  factory ShiftSummary.fromJson(JsonMap json) {
+    final rawCompleted =
+        (json['completed_checklist'] as List<dynamic>?) ?? <dynamic>[];
+    return ShiftSummary(
+      workerId: json['worker_id'] as String,
+      checkedInAt: json['checked_in_at'] as String?,
+      checkinDistanceM: (json['checkin_distance_m'] as num?)?.toInt(),
+      completedChecklist: rawCompleted.map((e) => e.toString()).toList(),
+      checkedOutAt: json['checked_out_at'] as String?,
+      actualMinutes: (json['actual_minutes'] as num?)?.toInt(),
+      payableMinutes: (json['payable_minutes'] as num?)?.toInt(),
+      grossEarnedPaise: (json['gross_earned_paise'] as num?)?.toInt(),
+      workerPayoutPaise: (json['worker_payout_paise'] as num?)?.toInt(),
+      platformFeePaise: (json['platform_fee_paise'] as num?)?.toInt(),
+      posterRefundPaise: (json['poster_refund_paise'] as num?)?.toInt(),
+      approvedAt: json['approved_at'] as String?,
+    );
+  }
+}
+
 class JobDetail {
   const JobDetail({
     required this.id,
@@ -161,12 +210,16 @@ class JobDetail {
     required this.hours,
     required this.totalPaise,
     required this.escrowHeldPaise,
+    required this.lat,
+    required this.lng,
     required this.addressText,
     required this.startAt,
     required this.status,
     required this.isPoster,
     required this.applications,
     required this.myApplication,
+    required this.shift,
+    required this.hasRated,
   });
 
   final String id;
@@ -179,17 +232,22 @@ class JobDetail {
   final int hours;
   final int totalPaise;
   final int escrowHeldPaise;
+  final double lat;
+  final double lng;
   final String addressText;
   final String startAt;
   final String status;
   final bool isPoster;
   final List<JobApplicant> applications;
   final MyJobApplication? myApplication;
+  final ShiftSummary? shift;
+  final bool hasRated;
 
   factory JobDetail.fromJson(JsonMap json) {
     final rawChecklist = (json['checklist'] as List<dynamic>?) ?? <dynamic>[];
     final rawApps = (json['applications'] as List<dynamic>?) ?? <dynamic>[];
     final rawMine = json['my_application'] as JsonMap?;
+    final rawShift = json['shift'] as JsonMap?;
 
     return JobDetail(
       id: json['id'] as String,
@@ -202,6 +260,8 @@ class JobDetail {
       hours: (json['hours'] as num).toInt(),
       totalPaise: (json['total_paise'] as num).toInt(),
       escrowHeldPaise: (json['escrow_held_paise'] as num?)?.toInt() ?? 0,
+      lat: (json['lat'] as num?)?.toDouble() ?? 12.9141,
+      lng: (json['lng'] as num?)?.toDouble() ?? 74.8560,
       addressText: (json['address_text'] as String?) ?? '',
       startAt: json['start_at'] as String,
       status: json['status'] as String,
@@ -210,6 +270,8 @@ class JobDetail {
           .map((item) => JobApplicant.fromJson(item as JsonMap))
           .toList(),
       myApplication: rawMine == null ? null : MyJobApplication.fromJson(rawMine),
+      shift: rawShift == null ? null : ShiftSummary.fromJson(rawShift),
+      hasRated: json['my_rating'] != null,
     );
   }
 }

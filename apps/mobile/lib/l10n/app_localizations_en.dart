@@ -239,4 +239,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refreshButton => 'Refresh';
+
+  @override
+  String get generateCheckinQrButton => 'Show check-in QR code';
+
+  @override
+  String get checkinQrCardTitle => 'Signed check-in QR code';
+
+  @override
+  String get copyQrPayloadButton => 'Copy QR payload';
+
+  @override
+  String get workerCheckinCardTitle => 'On-site QR and GPS check-in';
+
+  @override
+  String get qrPayloadLabel => 'Check-in QR payload';
+
+  @override
+  String get checkinNowButton => 'Check in and start shift';
+
+  @override
+  String get liveTimeCardTitle => 'Active shift time card';
+
+  @override
+  String get clockOutButton => 'Clock out and submit time card';
+
+  @override
+  String get settlementCardTitle => 'Time card settlement summary';
+
+  @override
+  String get payableMinutesLabel => 'Payable minutes';
+
+  @override
+  String get workerPayoutLabel => 'Worker payout (95%)';
+
+  @override
+  String get platformFeeLabel => 'Platform fee (5%)';
+
+  @override
+  String get posterRefundLabel => 'Unused escrow refund';
+
+  @override
+  String get approvePayoutButton => 'Approve time card and release payout';
+
+  @override
+  String get rateExperienceTitle => 'Rate this completed shift';
+
+  @override
+  String get ratingCommentLabel => 'Feedback comment (optional)';
+
+  @override
+  String get submitRatingButton => 'Submit rating';
+
+  @override
+  String get ratingSubmittedBanner => 'Rating recorded on the ledger';
 }

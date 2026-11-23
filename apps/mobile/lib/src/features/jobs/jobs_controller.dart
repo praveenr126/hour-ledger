@@ -233,4 +233,142 @@ class JobsController extends StateNotifier<JobsState> {
       return false;
     }
   }
+
+  Future<String?> fetchCheckinQr(String jobId) async {
+    if (state.busy) return null;
+    state = state.copyWith(busy: true, clearError: true);
+    try {
+      final res = await _api.getJson('/jobs/$jobId/checkin-qr');
+      state = state.copyWith(busy: false);
+      return res['qr_payload'] as String;
+    } on ApiException catch (e) {
+      state = state.copyWith(busy: false, errorMessage: e.message);
+      return null;
+    } catch (_) {
+      state = state.copyWith(busy: false, errorMessage: 'NETWORK_ERROR');
+      return null;
+    }
+  }
+
+  Future<bool> checkInToJob({
+    required String jobId,
+    required String qrPayload,
+    required double lat,
+    required double lng,
+  }) async {
+    if (state.busy) return false;
+    state = state.copyWith(busy: true, clearError: true);
+    try {
+      await _api.postJson(
+        '/jobs/$jobId/checkin',
+        <String, dynamic>{
+          'qr_payload': qrPayload.trim(),
+          'lat': lat,
+          'lng': lng,
+        },
+        authenticated: true,
+      );
+      await refreshAll();
+      state = state.copyWith(busy: false);
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(busy: false, errorMessage: e.message);
+      return false;
+    } catch (_) {
+      state = state.copyWith(busy: false, errorMessage: 'NETWORK_ERROR');
+      return false;
+    }
+  }
+
+  Future<bool> updateChecklist(String jobId, List<String> completedItems) async {
+    if (state.busy) return false;
+    state = state.copyWith(busy: true, clearError: true);
+    try {
+      await _api.postJson(
+        '/jobs/$jobId/checklist',
+        <String, dynamic>{'completed_items': completedItems},
+        authenticated: true,
+      );
+      state = state.copyWith(busy: false);
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(busy: false, errorMessage: e.message);
+      return false;
+    } catch (_) {
+      state = state.copyWith(busy: false, errorMessage: 'NETWORK_ERROR');
+      return false;
+    }
+  }
+
+  Future<bool> checkOutFromJob(String jobId) async {
+    if (state.busy) return false;
+    state = state.copyWith(busy: true, clearError: true);
+    try {
+      await _api.postJson(
+        '/jobs/$jobId/checkout',
+        <String, dynamic>{},
+        authenticated: true,
+      );
+      await refreshAll();
+      state = state.copyWith(busy: false);
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(busy: false, errorMessage: e.message);
+      return false;
+    } catch (_) {
+      state = state.copyWith(busy: false, errorMessage: 'NETWORK_ERROR');
+      return false;
+    }
+  }
+
+  Future<bool> approveShiftPayout(String jobId) async {
+    if (state.busy) return false;
+    state = state.copyWith(busy: true, clearError: true);
+    try {
+      await _api.postJson(
+        '/jobs/$jobId/approve',
+        <String, dynamic>{},
+        authenticated: true,
+        idempotencyKey: _newIdempotencyKey('approve-$jobId'),
+      );
+      await refreshAll();
+      state = state.copyWith(busy: false);
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(busy: false, errorMessage: e.message);
+      return false;
+    } catch (_) {
+      state = state.copyWith(busy: false, errorMessage: 'NETWORK_ERROR');
+      return false;
+    }
+  }
+
+  Future<bool> rateCompletedJob({
+    required String jobId,
+    required int stars,
+    String? comment,
+  }) async {
+    if (state.busy) return false;
+    state = state.copyWith(busy: true, clearError: true);
+    try {
+      await _api.postJson(
+        '/jobs/$jobId/rate',
+        <String, dynamic>{
+          'stars': stars,
+          if (comment != null && comment.trim().isNotEmpty)
+            'comment': comment.trim(),
+        },
+        authenticated: true,
+      );
+      await refreshAll();
+      state = state.copyWith(busy: false);
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(busy: false, errorMessage: e.message);
+      return false;
+    } catch (_) {
+      state = state.copyWith(busy: false, errorMessage: 'NETWORK_ERROR');
+      return false;
+    }
+  }
 }

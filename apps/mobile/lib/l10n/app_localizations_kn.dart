@@ -236,4 +236,58 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get refreshButton => 'ರಿಫ್ರೆಶ್';
+
+  @override
+  String get generateCheckinQrButton => 'ಚೆಕ್-ಇನ್ QR ಕೋಡ್ ತೋರಿಸಿ';
+
+  @override
+  String get checkinQrCardTitle => 'ಸಹಿ ಮಾಡಿದ ಚೆಕ್-ಇನ್ QR ಕೋಡ್';
+
+  @override
+  String get copyQrPayloadButton => 'QR ಪೇಲೋಡ್ ನಕಲಿಸಿ';
+
+  @override
+  String get workerCheckinCardTitle => 'ಸ್ಥಳದಲ್ಲೇ QR ಮತ್ತು GPS ಚೆಕ್-ಇನ್';
+
+  @override
+  String get qrPayloadLabel => 'ಚೆಕ್-ಇನ್ QR ಪೇಲೋಡ್';
+
+  @override
+  String get checkinNowButton => 'ಚೆಕ್ ಇನ್ ಮಾಡಿ ಕೆಲಸ ಪ್ರಾರಂಭಿಸಿ';
+
+  @override
+  String get liveTimeCardTitle => 'ಸಕ್ರಿಯ ಶಿಫ್ಟ್ ಸಮಯ ಕಾರ್ಡ್';
+
+  @override
+  String get clockOutButton => 'ಕ್ಲಾಕ್ ಔಟ್ ಮಾಡಿ ಸಮಯ ಕಾರ್ಡ್ ಸಲ್ಲಿಸಿ';
+
+  @override
+  String get settlementCardTitle => 'ಸಮಯ ಕಾರ್ಡ್ ಇತ್ಯರ್ಥ ವಿವರ';
+
+  @override
+  String get payableMinutesLabel => 'ಪಾವತಿಸಬೇಕಾದ ನಿಮಿಷಗಳು';
+
+  @override
+  String get workerPayoutLabel => 'ಕೆಲಸಗಾರರ ಪಾವತಿ (95%)';
+
+  @override
+  String get platformFeeLabel => 'ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ಶುಲ್ಕ (5%)';
+
+  @override
+  String get posterRefundLabel => 'ಬಳಸದ ಎಸ್ಕ್ರೊ ಮರುಪಾವತಿ';
+
+  @override
+  String get approvePayoutButton => 'ಸಮಯ ಕಾರ್ಡ್ ಅನುಮೋದಿಸಿ ಹಣ ಬಿಡುಗಡೆ ಮಾಡಿ';
+
+  @override
+  String get rateExperienceTitle => 'ಈ ಪೂರ್ಣಗೊಂಡ ಕೆಲಸವನ್ನು ರೇಟ್ ಮಾಡಿ';
+
+  @override
+  String get ratingCommentLabel => 'ಅಭಿಪ್ರಾಯ (ಐಚ್ಛಿಕ)';
+
+  @override
+  String get submitRatingButton => 'ರೇಟಿಂಗ್ ಸಲ್ಲಿಸಿ';
+
+  @override
+  String get ratingSubmittedBanner => 'ರೇಟಿಂಗ್ ದಾಖಲಾಗಿದೆ';
 }

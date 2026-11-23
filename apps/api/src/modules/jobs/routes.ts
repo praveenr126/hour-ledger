@@ -715,6 +715,18 @@ export async function registerJobRoutes(
           }
         : null;
 
+      const myRatingRes = await pool.query<{ id: string; comment: string | null; created_at: Date }>(
+        `SELECT id, comment, created_at FROM ratings WHERE job_id = $1 AND rater_id = $2`,
+        [jobId, userId]
+      );
+      const myRating = myRatingRes.rows[0]
+        ? {
+            id: myRatingRes.rows[0].id,
+            comment: myRatingRes.rows[0].comment ?? "",
+            created_at: myRatingRes.rows[0].created_at.toISOString()
+          }
+        : null;
+
       return reply.code(200).send({
         id: job.id,
         poster_id: job.poster_id,
@@ -737,7 +749,8 @@ export async function registerJobRoutes(
         is_poster: isPoster,
         applications,
         my_application: myApplication,
-        shift
+        shift,
+        my_rating: myRating
       });
     }
   );

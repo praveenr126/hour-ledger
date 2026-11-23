@@ -547,6 +547,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Refresh'**
   String get refreshButton;
+
+  /// No description provided for @generateCheckinQrButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Show check-in QR code'**
+  String get generateCheckinQrButton;
+
+  /// No description provided for @checkinQrCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed check-in QR code'**
+  String get checkinQrCardTitle;
+
+  /// No description provided for @copyQrPayloadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy QR payload'**
+  String get copyQrPayloadButton;
+
+  /// No description provided for @workerCheckinCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On-site QR and GPS check-in'**
+  String get workerCheckinCardTitle;
+
+  /// No description provided for @qrPayloadLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in QR payload'**
+  String get qrPayloadLabel;
+
+  /// No description provided for @checkinNowButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in and start shift'**
+  String get checkinNowButton;
+
+  /// No description provided for @liveTimeCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Active shift time card'**
+  String get liveTimeCardTitle;
+
+  /// No description provided for @clockOutButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock out and submit time card'**
+  String get clockOutButton;
+
+  /// No description provided for @settlementCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time card settlement summary'**
+  String get settlementCardTitle;
+
+  /// No description provided for @payableMinutesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payable minutes'**
+  String get payableMinutesLabel;
+
+  /// No description provided for @workerPayoutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Worker payout (95%)'**
+  String get workerPayoutLabel;
+
+  /// No description provided for @platformFeeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform fee (5%)'**
+  String get platformFeeLabel;
+
+  /// No description provided for @posterRefundLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unused escrow refund'**
+  String get posterRefundLabel;
+
+  /// No description provided for @approvePayoutButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve time card and release payout'**
+  String get approvePayoutButton;
+
+  /// No description provided for @rateExperienceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate this completed shift'**
+  String get rateExperienceTitle;
+
+  /// No description provided for @ratingCommentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback comment (optional)'**
+  String get ratingCommentLabel;
+
+  /// No description provided for @submitRatingButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit rating'**
+  String get submitRatingButton;
+
+  /// No description provided for @ratingSubmittedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating recorded on the ledger'**
+  String get ratingSubmittedBanner;
 }
 
 class _AppLocalizationsDelegate

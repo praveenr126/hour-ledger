@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../core/theme/app_theme.dart';
@@ -19,11 +20,23 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
   JobDetail? _detail;
   bool _loading = true;
   String? _loadError;
+  String? _generatedQrPayload;
+  int _selectedStars = 5;
+
+  final _qrInputController = TextEditingController();
+  final _ratingCommentController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _reload();
+  }
+
+  @override
+  void dispose() {
+    _qrInputController.dispose();
+    _ratingCommentController.dispose();
+    super.dispose();
   }
 
   Future<void> _reload() async {
@@ -59,7 +72,16 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
     final detail = _detail;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.jobDetailTitle)),
+      appBar: AppBar(
+        title: Text(l10n.jobDetailTitle),
+        actions: <Widget>[
+          IconButton(
+            tooltip: l10n.refreshButton,
+            onPressed: _reload,
+            icon: const Icon(Icons.refresh_outlined),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -76,8 +98,11 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Wrap(
+                              alignment: WrapAlignment.spaceBetween,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: AppTokens.s12,
+                              runSpacing: AppTokens.s8,
                               children: <Widget>[
                                 Container(
                                   key: const Key('job_status_badge'),
@@ -149,22 +174,9 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                 ),
                               ),
                             ),
-                            if (detail.checklist.isNotEmpty) ...<Widget>[
-                              const SizedBox(height: AppTokens.s16),
-                              ...detail.checklist.map(
-                                (item) => Padding(
-                                  padding: const EdgeInsets.only(bottom: AppTokens.s8),
-                                  child: Row(
-                                    children: <Widget>[
-                                      const Icon(Icons.check_box_outline_blank, size: 18),
-                                      const SizedBox(width: AppTokens.s8),
-                                      Expanded(child: Text(item)),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
                             const SizedBox(height: AppTokens.s24),
+
+                            // 1. DRAFT -> Poster funds escrow
                             if (detail.isPoster && detail.status == 'DRAFT') ...<Widget>[
                               FilledButton(
                                 key: const Key('fund_escrow_button'),
@@ -177,7 +189,9 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                 child: Text(l10n.fundEscrowButton),
                               ),
                             ],
-                            if (!detail.isPoster) ...<Widget>[
+
+                            // 2. Worker apply / status banner on OPEN or FILLED
+                            if (!detail.isPoster && detail.status == 'OPEN') ...<Widget>[
                               if (detail.myApplication != null)
                                 Container(
                                   key: const Key('my_application_banner'),
@@ -195,7 +209,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                     ),
                                   ),
                                 )
-                              else if (detail.status == 'OPEN')
+                              else
                                 FilledButton(
                                   key: const Key('apply_job_button'),
                                   onPressed: jobsState.busy
@@ -207,7 +221,337 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                   child: Text(l10n.applyJobButton),
                                 ),
                             ],
+
+                            // 3. FILLED -> Poster generates QR; Accepted Worker checks in
+                            if (detail.status == 'FILLED') ...<Widget>[
+                              if (detail.isPoster) ...<Widget>[
+                                OutlinedButton.icon(
+                                  key: const Key('generate_qr_button'),
+                                  onPressed: jobsState.busy
+                                      ? null
+                                      : () async {
+                                          final qr = await controller.fetchCheckinQr(detail.id);
+                                          if (qr != null && mounted) {
+                                            setState(() => _generatedQrPayload = qr);
+                                          }
+                                        },
+                                  icon: const Icon(Icons.qr_code_2_outlined, size: 20),
+                                  label: Text(l10n.generateCheckinQrButton),
+                                ),
+                                if (_generatedQrPayload != null) ...<Widget>[
+                                  const SizedBox(height: AppTokens.s12),
+                                  Card(
+                                    key: const Key('generated_qr_card'),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(AppTokens.s16),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: <Widget>[
+                                          Text(
+                                            l10n.checkinQrCardTitle,
+                                            style: Theme.of(context).textTheme.titleMedium,
+                                          ),
+                                          const SizedBox(height: AppTokens.s8),
+                                          SelectableText(
+                                            _generatedQrPayload!,
+                                            style: AppTokens.monoTabular.copyWith(fontSize: 12),
+                                          ),
+                                          const SizedBox(height: AppTokens.s12),
+                                          OutlinedButton.icon(
+                                            key: const Key('copy_qr_button'),
+                                            onPressed: () {
+                                              Clipboard.setData(
+                                                ClipboardData(text: _generatedQrPayload!),
+                                              );
+                                            },
+                                            icon: const Icon(Icons.copy_outlined, size: 18),
+                                            label: Text(l10n.copyQrPayloadButton),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ] else if (detail.myApplication?.status == 'accepted') ...<Widget>[
+                                Card(
+                                  key: const Key('worker_checkin_card'),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(AppTokens.s16),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: <Widget>[
+                                        Text(
+                                          l10n.workerCheckinCardTitle,
+                                          style: Theme.of(context).textTheme.titleMedium,
+                                        ),
+                                        const SizedBox(height: AppTokens.s12),
+                                        TextField(
+                                          key: const Key('qr_payload_input'),
+                                          controller: _qrInputController,
+                                          style: AppTokens.monoTabular.copyWith(fontSize: 13),
+                                          decoration: InputDecoration(
+                                            labelText: l10n.qrPayloadLabel,
+                                          ),
+                                        ),
+                                        const SizedBox(height: AppTokens.s16),
+                                        FilledButton(
+                                          key: const Key('checkin_now_button'),
+                                          onPressed: jobsState.busy
+                                              ? null
+                                              : () async {
+                                                  final ok = await controller.checkInToJob(
+                                                    jobId: detail.id,
+                                                    qrPayload: _qrInputController.text,
+                                                    lat: detail.lat,
+                                                    lng: detail.lng,
+                                                  );
+                                                  if (ok) await _reload();
+                                                },
+                                          child: Text(l10n.checkinNowButton),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+
+                            // 4. IN_PROGRESS -> Live Time Card + Checklist + Worker Clock-Out
+                            if (detail.status == 'IN_PROGRESS') ...<Widget>[
+                              Card(
+                                key: const Key('live_time_card'),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(AppTokens.s16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: <Widget>[
+                                      Text(
+                                        l10n.liveTimeCardTitle,
+                                        style: Theme.of(context).textTheme.titleLarge,
+                                      ),
+                                      if (detail.shift?.checkedInAt != null) ...<Widget>[
+                                        const SizedBox(height: AppTokens.s8),
+                                        Text(
+                                          'Checked in: ${detail.shift!.checkedInAt}',
+                                          style: AppTokens.monoTabular.copyWith(fontSize: 12),
+                                        ),
+                                      ],
+                                      if (detail.checklist.isNotEmpty) ...<Widget>[
+                                        const SizedBox(height: AppTokens.s12),
+                                        ...detail.checklist.map((item) {
+                                          final done = detail.shift?.completedChecklist
+                                                  .contains(item) ??
+                                              false;
+                                          return InkWell(
+                                            key: Key('checklist_item_$item'),
+                                            onTap: detail.isPoster || jobsState.busy
+                                                ? null
+                                                : () async {
+                                                    final next = List<String>.from(
+                                                      detail.shift?.completedChecklist ??
+                                                          <String>[],
+                                                    );
+                                                    if (done) {
+                                                      next.remove(item);
+                                                    } else {
+                                                      next.add(item);
+                                                    }
+                                                    final ok = await controller.updateChecklist(
+                                                      detail.id,
+                                                      next,
+                                                    );
+                                                    if (ok) await _reload();
+                                                  },
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                vertical: AppTokens.s8,
+                                              ),
+                                              child: Row(
+                                                children: <Widget>[
+                                                  Icon(
+                                                    done
+                                                        ? Icons.check_box_outlined
+                                                        : Icons.check_box_outline_blank,
+                                                    color: done ? AppTokens.held : AppTokens.ink,
+                                                    size: 20,
+                                                  ),
+                                                  const SizedBox(width: AppTokens.s8),
+                                                  Expanded(child: Text(item)),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                      ],
+                                      if (!detail.isPoster) ...<Widget>[
+                                        const SizedBox(height: AppTokens.s16),
+                                        FilledButton(
+                                          key: const Key('clock_out_button'),
+                                          onPressed: jobsState.busy
+                                              ? null
+                                              : () async {
+                                                  final ok = await controller
+                                                      .checkOutFromJob(detail.id);
+                                                  if (ok) await _reload();
+                                                },
+                                          child: Text(l10n.clockOutButton),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+
+                            // 5. AWAITING_APPROVAL or COMPLETED -> Settlement Breakdown
+                            if ((detail.status == 'AWAITING_APPROVAL' ||
+                                    detail.status == 'COMPLETED') &&
+                                detail.shift != null) ...<Widget>[
+                              Card(
+                                key: const Key('settlement_summary_card'),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(AppTokens.s16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: <Widget>[
+                                      Text(
+                                        l10n.settlementCardTitle,
+                                        style: Theme.of(context).textTheme.titleLarge,
+                                      ),
+                                      const SizedBox(height: AppTokens.s12),
+                                      _DetailRow(
+                                        label: l10n.payableMinutesLabel,
+                                        value: '${detail.shift!.payableMinutes ?? 0} min',
+                                      ),
+                                      const SizedBox(height: AppTokens.s8),
+                                      _DetailRow(
+                                        label: l10n.workerPayoutLabel,
+                                        value: UserProfile.formatPaise(
+                                          detail.shift!.workerPayoutPaise ?? 0,
+                                        ),
+                                      ),
+                                      const SizedBox(height: AppTokens.s8),
+                                      _DetailRow(
+                                        label: l10n.platformFeeLabel,
+                                        value: UserProfile.formatPaise(
+                                          detail.shift!.platformFeePaise ?? 0,
+                                        ),
+                                      ),
+                                      const SizedBox(height: AppTokens.s8),
+                                      _DetailRow(
+                                        label: l10n.posterRefundLabel,
+                                        value: UserProfile.formatPaise(
+                                          detail.shift!.posterRefundPaise ?? 0,
+                                        ),
+                                      ),
+                                      if (detail.isPoster &&
+                                          detail.status == 'AWAITING_APPROVAL') ...<Widget>[
+                                        const SizedBox(height: AppTokens.s16),
+                                        FilledButton(
+                                          key: const Key('approve_payout_button'),
+                                          onPressed: jobsState.busy
+                                              ? null
+                                              : () async {
+                                                  final ok = await controller
+                                                      .approveShiftPayout(detail.id);
+                                                  if (ok) await _reload();
+                                                },
+                                          child: Text(l10n.approvePayoutButton),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+
+                            // 6. COMPLETED -> Mutual Rating
+                            if (detail.status == 'COMPLETED') ...<Widget>[
+                              const SizedBox(height: AppTokens.s16),
+                              if (detail.hasRated)
+                                Container(
+                                  key: const Key('rating_submitted_banner'),
+                                  padding: const EdgeInsets.all(AppTokens.s16),
+                                  decoration: BoxDecoration(
+                                    color: AppTokens.heldTint,
+                                    borderRadius: AppTokens.borderRadius,
+                                    border: Border.all(color: AppTokens.held),
+                                  ),
+                                  child: Text(
+                                    l10n.ratingSubmittedBanner,
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          color: AppTokens.held,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                )
+                              else
+                                Card(
+                                  key: const Key('rating_form_card'),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(AppTokens.s16),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: <Widget>[
+                                        Text(
+                                          l10n.rateExperienceTitle,
+                                          style: Theme.of(context).textTheme.titleMedium,
+                                        ),
+                                        const SizedBox(height: AppTokens.s12),
+                                        Wrap(
+                                          spacing: AppTokens.s8,
+                                          children: <Widget>[
+                                            for (var s = 1; s <= 5; s++)
+                                              OutlinedButton(
+                                                key: Key('star_button_$s'),
+                                                onPressed: () =>
+                                                    setState(() => _selectedStars = s),
+                                                style: OutlinedButton.styleFrom(
+                                                  backgroundColor: _selectedStars == s
+                                                      ? AppTokens.paperInset
+                                                      : AppTokens.paper,
+                                                  side: BorderSide(
+                                                    color: _selectedStars == s
+                                                        ? AppTokens.action
+                                                        : AppTokens.hairline,
+                                                  ),
+                                                ),
+                                                child: Text('$s ★'),
+                                              ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: AppTokens.s12),
+                                        TextField(
+                                          key: const Key('rating_comment_input'),
+                                          controller: _ratingCommentController,
+                                          decoration: InputDecoration(
+                                            labelText: l10n.ratingCommentLabel,
+                                          ),
+                                        ),
+                                        const SizedBox(height: AppTokens.s16),
+                                        FilledButton(
+                                          key: const Key('submit_rating_button'),
+                                          onPressed: jobsState.busy
+                                              ? null
+                                              : () async {
+                                                  final ok = await controller.rateCompletedJob(
+                                                    jobId: detail.id,
+                                                    stars: _selectedStars,
+                                                    comment: _ratingCommentController.text,
+                                                  );
+                                                  if (ok) await _reload();
+                                                },
+                                          child: Text(l10n.submitRatingButton),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
+
+                            // Applicants section for Poster when OPEN
                             if (detail.isPoster && detail.status != 'DRAFT') ...<Widget>[
+                              const SizedBox(height: AppTokens.s24),
                               Text(
                                 l10n.applicantsSectionTitle,
                                 style: Theme.of(context).textTheme.titleLarge,
@@ -225,9 +569,11 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: <Widget>[
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceBetween,
+                                            Wrap(
+                                              alignment: WrapAlignment.spaceBetween,
+                                              crossAxisAlignment: WrapCrossAlignment.center,
+                                              spacing: AppTokens.s12,
+                                              runSpacing: AppTokens.s4,
                                               children: <Widget>[
                                                 Text(
                                                   appItem.workerName,
@@ -249,8 +595,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                               'Trust ${appItem.workerTrustLevel} · Responsiveness ${appItem.workerResponsivenessScore}%',
                                               style: AppTokens.monoTabular.copyWith(fontSize: 12),
                                             ),
-                                            if (detail.status == 'OPEN' &&
-                                                appItem.status == 'pending') ...<Widget>[
+                                            if (appItem.status == 'pending') ...<Widget>[
                                               const SizedBox(height: AppTokens.s12),
                                               Row(
                                                 children: <Widget>[
@@ -295,6 +640,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                   );
                                 }),
                             ],
+
                             if (jobsState.errorMessage != null) ...<Widget>[
                               const SizedBox(height: AppTokens.s16),
                               Container(

@@ -9,6 +9,7 @@ import { registerProfileRoutes } from './modules/profile/routes.js';
 import { registerWalletRoutes } from './modules/wallet/routes.js';
 import { registerJobRoutes } from './modules/jobs/routes.js';
 import { registerShiftRoutes } from './modules/shifts/routes.js';
+import { registerRatingRoutes } from './modules/ratings/routes.js';
 
 export interface BuildAppOptions {
   config: AppConfig;
@@ -60,6 +61,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
       await registerWalletRoutes(v1, { pool });
       await registerJobRoutes(v1, { pool });
       await registerShiftRoutes(v1, { pool, config });
+      await registerRatingRoutes(v1, { pool });
     },
     { prefix: '/v1' }
   );
