@@ -54,6 +54,7 @@ beforeAll(async () => {
     jwtSecret: 'test_jwt_secret_at_least_32_characters_long_0001',
     otpPepper: 'test_otp_pepper_at_least_16_chars',
     idHashSalt: 'test_id_hash_salt_at_least_16_chars',
+    adminApiKey: 'test_admin_api_key_at_least_16_chars',
     devShowOtp: true
   });
   pool = new Pool({ connectionString: testDbUrl });

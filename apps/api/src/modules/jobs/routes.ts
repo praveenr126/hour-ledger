@@ -727,6 +727,41 @@ export async function registerJobRoutes(
           }
         : null;
 
+      const disputeRes = await pool.query<{
+        raised_by: string;
+        reason: string;
+        evidence_note: string;
+        status: string;
+        resolution_note: string | null;
+        worker_payout_paise: string | null;
+        platform_fee_paise: string | null;
+        poster_refund_paise: string | null;
+        resolved_at: Date | null;
+        created_at: Date;
+      }>(
+        `SELECT raised_by, reason, evidence_note, status, resolution_note,
+                worker_payout_paise, platform_fee_paise, poster_refund_paise,
+                resolved_at, created_at
+           FROM job_disputes
+          WHERE job_id = $1`,
+        [jobId]
+      );
+      const dr = disputeRes.rows[0];
+      const dispute = dr
+        ? {
+            raised_by: dr.raised_by,
+            reason: dr.reason,
+            evidence_note: dr.evidence_note,
+            status: dr.status,
+            resolution_note: dr.resolution_note,
+            worker_payout_paise: dr.worker_payout_paise !== null ? Number(dr.worker_payout_paise) : null,
+            platform_fee_paise: dr.platform_fee_paise !== null ? Number(dr.platform_fee_paise) : null,
+            poster_refund_paise: dr.poster_refund_paise !== null ? Number(dr.poster_refund_paise) : null,
+            resolved_at: dr.resolved_at ? dr.resolved_at.toISOString() : null,
+            created_at: dr.created_at.toISOString()
+          }
+        : null;
+
       return reply.code(200).send({
         id: job.id,
         poster_id: job.poster_id,
@@ -750,7 +785,8 @@ export async function registerJobRoutes(
         applications,
         my_application: myApplication,
         shift,
-        my_rating: myRating
+        my_rating: myRating,
+        dispute
       });
     }
   );

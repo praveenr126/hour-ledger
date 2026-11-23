@@ -11,6 +11,7 @@ export interface AppConfig {
   jwtSecret: string;
   otpPepper: string;
   idHashSalt: string;
+  adminApiKey: string;
   devShowOtp: boolean;
 }
 
@@ -19,6 +20,7 @@ export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
   const jwtSecret = overrides.jwtSecret ?? process.env.JWT_SECRET;
   const otpPepper = overrides.otpPepper ?? process.env.OTP_PEPPER;
   const idHashSalt = overrides.idHashSalt ?? process.env.ID_HASH_SALT;
+  const adminApiKey = overrides.adminApiKey ?? process.env.ADMIN_API_KEY;
 
   if (!databaseUrl) throw new Error('DATABASE_URL is required');
   if (!jwtSecret || jwtSecret.length < 32) {
@@ -30,6 +32,9 @@ export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
   if (!idHashSalt || idHashSalt.length < 16) {
     throw new Error('ID_HASH_SALT must be at least 16 characters');
   }
+  if (!adminApiKey || adminApiKey.length < 16) {
+    throw new Error('ADMIN_API_KEY must be at least 16 characters');
+  }
 
   return {
     databaseUrl,
@@ -38,6 +43,7 @@ export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
     jwtSecret,
     otpPepper,
     idHashSalt,
+    adminApiKey,
     devShowOtp: overrides.devShowOtp ?? process.env.DEV_SHOW_OTP === 'true'
   };
 }
