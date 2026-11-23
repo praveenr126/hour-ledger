@@ -5,6 +5,7 @@ import type { AppConfig } from './config.js';
 import { createDbPool } from './db.js';
 import { MockOtpSender, type OtpSender } from './modules/auth/otp-sender.js';
 import { registerAuthRoutes } from './modules/auth/routes.js';
+import { registerProfileRoutes } from './modules/profile/routes.js';
 
 export interface BuildAppOptions {
   config: AppConfig;
@@ -52,6 +53,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
       });
 
       await registerAuthRoutes(v1, { pool, config, otpSender });
+      await registerProfileRoutes(v1, { pool, config });
     },
     { prefix: '/v1' }
   );
