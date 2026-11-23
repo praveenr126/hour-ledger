@@ -655,6 +655,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rating recorded on the ledger'**
   String get ratingSubmittedBanner;
+
+  /// No description provided for @raiseDisputeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Raise dispute and freeze escrow'**
+  String get raiseDisputeButton;
+
+  /// No description provided for @disputeCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Escrow dispute'**
+  String get disputeCardTitle;
+
+  /// No description provided for @disputeReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dispute reason'**
+  String get disputeReasonLabel;
+
+  /// No description provided for @disputeEvidenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Supporting note (optional)'**
+  String get disputeEvidenceLabel;
+
+  /// No description provided for @submitDisputeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeze escrow and submit dispute'**
+  String get submitDisputeButton;
+
+  /// No description provided for @disputeFrozenBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Escrow is frozen pending admin review'**
+  String get disputeFrozenBanner;
 }
 
 class _AppLocalizationsDelegate

@@ -290,4 +290,23 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get ratingSubmittedBanner => 'ರೇಟಿಂಗ್ ದಾಖಲಾಗಿದೆ';
+
+  @override
+  String get raiseDisputeButton => 'ವಿವಾದ ಸಲ್ಲಿಸಿ ಎಸ್ಕ್ರೊ ಸ್ಥಗಿತಗೊಳಿಸಿ';
+
+  @override
+  String get disputeCardTitle => 'ಎಸ್ಕ್ರೊ ವಿವಾದ';
+
+  @override
+  String get disputeReasonLabel => 'ವಿವಾದದ ಕಾರಣ';
+
+  @override
+  String get disputeEvidenceLabel => 'ಪೂರಕ ವಿವರ (ಐಚ್ಛಿಕ)';
+
+  @override
+  String get submitDisputeButton => 'ಎಸ್ಕ್ರೊ ಸ್ಥಗಿತಗೊಳಿಸಿ ವಿವಾದ ಸಲ್ಲಿಸಿ';
+
+  @override
+  String get disputeFrozenBanner =>
+      'ನಿರ್ವಾಹಕರ ಪರಿಶೀಲನೆಗಾಗಿ ಎಸ್ಕ್ರೊ ಸ್ಥಗಿತಗೊಳಿಸಲಾಗಿದೆ';
 }

@@ -92,5 +92,11 @@
   "rateExperienceTitle": "Rate this completed shift",
   "ratingCommentLabel": "Feedback comment (optional)",
   "submitRatingButton": "Submit rating",
-  "ratingSubmittedBanner": "Rating recorded on the ledger"
+  "ratingSubmittedBanner": "Rating recorded on the ledger",
+  "raiseDisputeButton": "Raise dispute and freeze escrow",
+  "disputeCardTitle": "Escrow dispute",
+  "disputeReasonLabel": "Dispute reason",
+  "disputeEvidenceLabel": "Supporting note (optional)",
+  "submitDisputeButton": "Freeze escrow and submit dispute",
+  "disputeFrozenBanner": "Escrow is frozen pending admin review"
 }

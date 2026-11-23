@@ -22,9 +22,12 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
   String? _loadError;
   String? _generatedQrPayload;
   int _selectedStars = 5;
+  bool _showDisputeForm = false;
 
   final _qrInputController = TextEditingController();
   final _ratingCommentController = TextEditingController();
+  final _disputeReasonController = TextEditingController();
+  final _disputeEvidenceController = TextEditingController();
 
   @override
   void initState() {
@@ -36,6 +39,8 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
   void dispose() {
     _qrInputController.dispose();
     _ratingCommentController.dispose();
+    _disputeReasonController.dispose();
+    _disputeEvidenceController.dispose();
     super.dispose();
   }
 
@@ -70,6 +75,8 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
     final jobsState = ref.watch(jobsControllerProvider);
     final controller = ref.read(jobsControllerProvider.notifier);
     final detail = _detail;
+    final isDangerStatus = detail?.status == 'DISPUTED';
+    final isCautionStatus = detail?.status == 'DRAFT';
 
     return Scaffold(
       appBar: AppBar(
@@ -111,23 +118,29 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                     vertical: AppTokens.s4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: detail.status == 'DRAFT'
-                                        ? AppTokens.cautionTint
-                                        : AppTokens.heldTint,
+                                    color: isDangerStatus
+                                        ? AppTokens.dangerTint
+                                        : isCautionStatus
+                                            ? AppTokens.cautionTint
+                                            : AppTokens.heldTint,
                                     borderRadius: AppTokens.borderRadius,
                                     border: Border.all(
-                                      color: detail.status == 'DRAFT'
-                                          ? AppTokens.caution
-                                          : AppTokens.held,
+                                      color: isDangerStatus
+                                          ? AppTokens.danger
+                                          : isCautionStatus
+                                              ? AppTokens.caution
+                                              : AppTokens.held,
                                     ),
                                   ),
                                   child: Text(
                                     detail.status,
                                     style: AppTokens.monoTabular.copyWith(
                                       fontSize: 13,
-                                      color: detail.status == 'DRAFT'
-                                          ? AppTokens.caution
-                                          : AppTokens.held,
+                                      color: isDangerStatus
+                                          ? AppTokens.danger
+                                          : isCautionStatus
+                                              ? AppTokens.caution
+                                              : AppTokens.held,
                                     ),
                                   ),
                                 ),
@@ -138,15 +151,9 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                               ],
                             ),
                             const SizedBox(height: AppTokens.s16),
-                            Text(
-                              detail.title,
-                              style: Theme.of(context).textTheme.headlineMedium,
-                            ),
+                            Text(detail.title, style: Theme.of(context).textTheme.headlineMedium),
                             const SizedBox(height: AppTokens.s8),
-                            Text(
-                              detail.description,
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
+                            Text(detail.description, style: Theme.of(context).textTheme.bodyLarge),
                             const SizedBox(height: AppTokens.s16),
                             Card(
                               child: Padding(
@@ -156,7 +163,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                     _DetailRow(
                                       label: l10n.totalPayoutLabel,
                                       value:
-                                          '${UserProfile.formatPaise(detail.hourlyRatePaise)}/hr × ${detail.hours}h = ${UserProfile.formatPaise(detail.totalPaise)}',
+                                          '${UserProfile.formatPaise(detail.hourlyRatePaise)}/hr × ${detail.hours}h =${UserProfile.formatPaise(detail.totalPaise)}',
                                     ),
                                     const SizedBox(height: AppTokens.s8),
                                     _DetailRow(
@@ -165,18 +172,13 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                     ),
                                     if (detail.addressText.isNotEmpty) ...<Widget>[
                                       const SizedBox(height: AppTokens.s8),
-                                      _DetailRow(
-                                        label: l10n.addressLabel,
-                                        value: detail.addressText,
-                                      ),
+                                      _DetailRow(label: l10n.addressLabel, value: detail.addressText),
                                     ],
                                   ],
                                 ),
                               ),
                             ),
                             const SizedBox(height: AppTokens.s24),
-
-                            // 1. DRAFT -> Poster funds escrow
                             if (detail.isPoster && detail.status == 'DRAFT') ...<Widget>[
                               FilledButton(
                                 key: const Key('fund_escrow_button'),
@@ -189,8 +191,6 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                 child: Text(l10n.fundEscrowButton),
                               ),
                             ],
-
-                            // 2. Worker apply / status banner on OPEN or FILLED
                             if (!detail.isPoster && detail.status == 'OPEN') ...<Widget>[
                               if (detail.myApplication != null)
                                 Container(
@@ -202,11 +202,8 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                     border: Border.all(color: AppTokens.held),
                                   ),
                                   child: Text(
-                                    '${l10n.yourApplicationTitle}: ${detail.myApplication!.status.toUpperCase()}',
-                                    style: AppTokens.monoTabular.copyWith(
-                                      fontSize: 14,
-                                      color: AppTokens.held,
-                                    ),
+                                    '${l10n.yourApplicationTitle}:${detail.myApplication!.status.toUpperCase()}',
+                                    style: AppTokens.monoTabular.copyWith(fontSize: 14, color: AppTokens.held),
                                   ),
                                 )
                               else
@@ -221,8 +218,6 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                   child: Text(l10n.applyJobButton),
                                 ),
                             ],
-
-                            // 3. FILLED -> Poster generates QR; Accepted Worker checks in
                             if (detail.status == 'FILLED') ...<Widget>[
                               if (detail.isPoster) ...<Widget>[
                                 OutlinedButton.icon(
@@ -247,23 +242,13 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.stretch,
                                         children: <Widget>[
-                                          Text(
-                                            l10n.checkinQrCardTitle,
-                                            style: Theme.of(context).textTheme.titleMedium,
-                                          ),
+                                          Text(l10n.checkinQrCardTitle, style: Theme.of(context).textTheme.titleMedium),
                                           const SizedBox(height: AppTokens.s8),
-                                          SelectableText(
-                                            _generatedQrPayload!,
-                                            style: AppTokens.monoTabular.copyWith(fontSize: 12),
-                                          ),
+                                          SelectableText(_generatedQrPayload!, style: AppTokens.monoTabular.copyWith(fontSize: 12)),
                                           const SizedBox(height: AppTokens.s12),
                                           OutlinedButton.icon(
                                             key: const Key('copy_qr_button'),
-                                            onPressed: () {
-                                              Clipboard.setData(
-                                                ClipboardData(text: _generatedQrPayload!),
-                                              );
-                                            },
+                                            onPressed: () => Clipboard.setData(ClipboardData(text: _generatedQrPayload!)),
                                             icon: const Icon(Icons.copy_outlined, size: 18),
                                             label: Text(l10n.copyQrPayloadButton),
                                           ),
@@ -280,18 +265,13 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.stretch,
                                       children: <Widget>[
-                                        Text(
-                                          l10n.workerCheckinCardTitle,
-                                          style: Theme.of(context).textTheme.titleMedium,
-                                        ),
+                                        Text(l10n.workerCheckinCardTitle, style: Theme.of(context).textTheme.titleMedium),
                                         const SizedBox(height: AppTokens.s12),
                                         TextField(
                                           key: const Key('qr_payload_input'),
                                           controller: _qrInputController,
                                           style: AppTokens.monoTabular.copyWith(fontSize: 13),
-                                          decoration: InputDecoration(
-                                            labelText: l10n.qrPayloadLabel,
-                                          ),
+                                          decoration: InputDecoration(labelText: l10n.qrPayloadLabel),
                                         ),
                                         const SizedBox(height: AppTokens.s16),
                                         FilledButton(
@@ -315,8 +295,6 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                 ),
                               ],
                             ],
-
-                            // 4. IN_PROGRESS -> Live Time Card + Checklist + Worker Clock-Out
                             if (detail.status == 'IN_PROGRESS') ...<Widget>[
                               Card(
                                 key: const Key('live_time_card'),
@@ -325,56 +303,31 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.stretch,
                                     children: <Widget>[
-                                      Text(
-                                        l10n.liveTimeCardTitle,
-                                        style: Theme.of(context).textTheme.titleLarge,
-                                      ),
+                                      Text(l10n.liveTimeCardTitle, style: Theme.of(context).textTheme.titleLarge),
                                       if (detail.shift?.checkedInAt != null) ...<Widget>[
                                         const SizedBox(height: AppTokens.s8),
-                                        Text(
-                                          'Checked in: ${detail.shift!.checkedInAt}',
-                                          style: AppTokens.monoTabular.copyWith(fontSize: 12),
-                                        ),
+                                        Text('Checked in: ${detail.shift!.checkedInAt}', style: AppTokens.monoTabular.copyWith(fontSize: 12)),
                                       ],
                                       if (detail.checklist.isNotEmpty) ...<Widget>[
                                         const SizedBox(height: AppTokens.s12),
                                         ...detail.checklist.map((item) {
-                                          final done = detail.shift?.completedChecklist
-                                                  .contains(item) ??
-                                              false;
+                                          final done = detail.shift?.completedChecklist.contains(item) ?? false;
                                           return InkWell(
                                             key: Key('checklist_item_$item'),
                                             onTap: detail.isPoster || jobsState.busy
                                                 ? null
                                                 : () async {
-                                                    final next = List<String>.from(
-                                                      detail.shift?.completedChecklist ??
-                                                          <String>[],
-                                                    );
-                                                    if (done) {
-                                                      next.remove(item);
-                                                    } else {
-                                                      next.add(item);
-                                                    }
-                                                    final ok = await controller.updateChecklist(
-                                                      detail.id,
-                                                      next,
-                                                    );
+                                                    final next = List<String>.from(detail.shift?.completedChecklist ?? <String>[]);
+                                                    done ? next.remove(item) : next.add(item);
+                                                    final ok = await controller.updateChecklist(detail.id, next);
                                                     if (ok) await _reload();
                                                   },
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                vertical: AppTokens.s8,
-                                              ),
+                                              padding: const EdgeInsets.symmetric(vertical: AppTokens.s8),
                                               child: Row(
                                                 children: <Widget>[
-                                                  Icon(
-                                                    done
-                                                        ? Icons.check_box_outlined
-                                                        : Icons.check_box_outline_blank,
-                                                    color: done ? AppTokens.held : AppTokens.ink,
-                                                    size: 20,
-                                                  ),
+                                                  Icon(done ? Icons.check_box_outlined : Icons.check_box_outline_blank,
+                                                      color: done ? AppTokens.held : AppTokens.ink, size: 20),
                                                   const SizedBox(width: AppTokens.s8),
                                                   Expanded(child: Text(item)),
                                                 ],
@@ -390,8 +343,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                           onPressed: jobsState.busy
                                               ? null
                                               : () async {
-                                                  final ok = await controller
-                                                      .checkOutFromJob(detail.id);
+                                                  final ok = await controller.checkOutFromJob(detail.id);
                                                   if (ok) await _reload();
                                                 },
                                           child: Text(l10n.clockOutButton),
@@ -402,11 +354,9 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                 ),
                               ),
                             ],
-
-                            // 5. AWAITING_APPROVAL or COMPLETED -> Settlement Breakdown
-                            if ((detail.status == 'AWAITING_APPROVAL' ||
-                                    detail.status == 'COMPLETED') &&
-                                detail.shift != null) ...<Widget>[
+                            if ((detail.status == 'AWAITING_APPROVAL' || detail.status == 'COMPLETED') &&
+                                detail.shift != null &&
+                                detail.shift!.payableMinutes != null) ...<Widget>[
                               Card(
                                 key: const Key('settlement_summary_card'),
                                 child: Padding(
@@ -414,46 +364,23 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.stretch,
                                     children: <Widget>[
-                                      Text(
-                                        l10n.settlementCardTitle,
-                                        style: Theme.of(context).textTheme.titleLarge,
-                                      ),
+                                      Text(l10n.settlementCardTitle, style: Theme.of(context).textTheme.titleLarge),
                                       const SizedBox(height: AppTokens.s12),
-                                      _DetailRow(
-                                        label: l10n.payableMinutesLabel,
-                                        value: '${detail.shift!.payableMinutes ?? 0} min',
-                                      ),
+                                      _DetailRow(label: l10n.payableMinutesLabel, value: '${detail.shift!.payableMinutes ?? 0} min'),
                                       const SizedBox(height: AppTokens.s8),
-                                      _DetailRow(
-                                        label: l10n.workerPayoutLabel,
-                                        value: UserProfile.formatPaise(
-                                          detail.shift!.workerPayoutPaise ?? 0,
-                                        ),
-                                      ),
+                                      _DetailRow(label: l10n.workerPayoutLabel, value: UserProfile.formatPaise(detail.shift!.workerPayoutPaise ?? 0)),
                                       const SizedBox(height: AppTokens.s8),
-                                      _DetailRow(
-                                        label: l10n.platformFeeLabel,
-                                        value: UserProfile.formatPaise(
-                                          detail.shift!.platformFeePaise ?? 0,
-                                        ),
-                                      ),
+                                      _DetailRow(label: l10n.platformFeeLabel, value: UserProfile.formatPaise(detail.shift!.platformFeePaise ?? 0)),
                                       const SizedBox(height: AppTokens.s8),
-                                      _DetailRow(
-                                        label: l10n.posterRefundLabel,
-                                        value: UserProfile.formatPaise(
-                                          detail.shift!.posterRefundPaise ?? 0,
-                                        ),
-                                      ),
-                                      if (detail.isPoster &&
-                                          detail.status == 'AWAITING_APPROVAL') ...<Widget>[
+                                      _DetailRow(label: l10n.posterRefundLabel, value: UserProfile.formatPaise(detail.shift!.posterRefundPaise ?? 0)),
+                                      if (detail.isPoster && detail.status == 'AWAITING_APPROVAL') ...<Widget>[
                                         const SizedBox(height: AppTokens.s16),
                                         FilledButton(
                                           key: const Key('approve_payout_button'),
                                           onPressed: jobsState.busy
                                               ? null
                                               : () async {
-                                                  final ok = await controller
-                                                      .approveShiftPayout(detail.id);
+                                                  final ok = await controller.approveShiftPayout(detail.id);
                                                   if (ok) await _reload();
                                                 },
                                           child: Text(l10n.approvePayoutButton),
@@ -464,8 +391,90 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                 ),
                               ),
                             ],
-
-                            // 6. COMPLETED -> Mutual Rating
+                            if (detail.dispute != null) ...<Widget>[
+                              const SizedBox(height: AppTokens.s16),
+                              Container(
+                                key: const Key('dispute_status_card'),
+                                padding: const EdgeInsets.all(AppTokens.s16),
+                                decoration: BoxDecoration(
+                                  color: detail.dispute!.status == 'open' ? AppTokens.dangerTint : AppTokens.heldTint,
+                                  borderRadius: AppTokens.borderRadius,
+                                  border: Border.all(color: detail.dispute!.status == 'open' ? AppTokens.danger : AppTokens.held),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      detail.dispute!.status == 'open'
+                                          ? l10n.disputeFrozenBanner
+                                          : '${l10n.disputeCardTitle}: ${detail.dispute!.status.toUpperCase()}',
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                            color: detail.dispute!.status == 'open' ? AppTokens.danger : AppTokens.held,
+                                          ),
+                                    ),
+                                    const SizedBox(height: AppTokens.s8),
+                                    Text(detail.dispute!.reason),
+                                    if (detail.dispute!.resolutionNote != null) ...<Widget>[
+                                      const SizedBox(height: AppTokens.s8),
+                                      Text(detail.dispute!.resolutionNote!),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ],
+                            if (detail.status == 'IN_PROGRESS' || detail.status == 'AWAITING_APPROVAL') ...<Widget>[
+                              const SizedBox(height: AppTokens.s16),
+                              if (!_showDisputeForm)
+                                OutlinedButton.icon(
+                                  key: const Key('open_dispute_form_button'),
+                                  onPressed: () => setState(() => _showDisputeForm = true),
+                                  icon: const Icon(Icons.gavel_outlined, size: 18),
+                                  label: Text(l10n.raiseDisputeButton),
+                                )
+                              else
+                                Card(
+                                  key: const Key('dispute_form_card'),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(AppTokens.s16),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: <Widget>[
+                                        Text(l10n.disputeCardTitle, style: Theme.of(context).textTheme.titleMedium),
+                                        const SizedBox(height: AppTokens.s12),
+                                        TextField(
+                                          key: const Key('dispute_reason_input'),
+                                          controller: _disputeReasonController,
+                                          decoration: InputDecoration(labelText: l10n.disputeReasonLabel),
+                                        ),
+                                        const SizedBox(height: AppTokens.s12),
+                                        TextField(
+                                          key: const Key('dispute_evidence_input'),
+                                          controller: _disputeEvidenceController,
+                                          decoration: InputDecoration(labelText: l10n.disputeEvidenceLabel),
+                                        ),
+                                        const SizedBox(height: AppTokens.s16),
+                                        FilledButton(
+                                          key: const Key('submit_dispute_button'),
+                                          onPressed: jobsState.busy
+                                              ? null
+                                              : () async {
+                                                  final ok = await controller.raiseDispute(
+                                                    jobId: detail.id,
+                                                    reason: _disputeReasonController.text,
+                                                    evidenceNote: _disputeEvidenceController.text,
+                                                  );
+                                                  if (ok && mounted) {
+                                                    setState(() => _showDisputeForm = false);
+                                                    await _reload();
+                                                  }
+                                                },
+                                          child: Text(l10n.submitDisputeButton),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
                             if (detail.status == 'COMPLETED') ...<Widget>[
                               const SizedBox(height: AppTokens.s16),
                               if (detail.hasRated)
@@ -479,10 +488,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                   ),
                                   child: Text(
                                     l10n.ratingSubmittedBanner,
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          color: AppTokens.held,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTokens.held, fontWeight: FontWeight.w600),
                                   ),
                                 )
                               else
@@ -493,10 +499,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.stretch,
                                       children: <Widget>[
-                                        Text(
-                                          l10n.rateExperienceTitle,
-                                          style: Theme.of(context).textTheme.titleMedium,
-                                        ),
+                                        Text(l10n.rateExperienceTitle, style: Theme.of(context).textTheme.titleMedium),
                                         const SizedBox(height: AppTokens.s12),
                                         Wrap(
                                           spacing: AppTokens.s8,
@@ -504,17 +507,10 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                             for (var s = 1; s <= 5; s++)
                                               OutlinedButton(
                                                 key: Key('star_button_$s'),
-                                                onPressed: () =>
-                                                    setState(() => _selectedStars = s),
+                                                onPressed: () => setState(() => _selectedStars = s),
                                                 style: OutlinedButton.styleFrom(
-                                                  backgroundColor: _selectedStars == s
-                                                      ? AppTokens.paperInset
-                                                      : AppTokens.paper,
-                                                  side: BorderSide(
-                                                    color: _selectedStars == s
-                                                        ? AppTokens.action
-                                                        : AppTokens.hairline,
-                                                  ),
+                                                  backgroundColor: _selectedStars == s ? AppTokens.paperInset : AppTokens.paper,
+                                                  side: BorderSide(color: _selectedStars == s ? AppTokens.action : AppTokens.hairline),
                                                 ),
                                                 child: Text('$s ★'),
                                               ),
@@ -524,9 +520,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                         TextField(
                                           key: const Key('rating_comment_input'),
                                           controller: _ratingCommentController,
-                                          decoration: InputDecoration(
-                                            labelText: l10n.ratingCommentLabel,
-                                          ),
+                                          decoration: InputDecoration(labelText: l10n.ratingCommentLabel),
                                         ),
                                         const SizedBox(height: AppTokens.s16),
                                         FilledButton(
@@ -548,14 +542,9 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                   ),
                                 ),
                             ],
-
-                            // Applicants section for Poster when OPEN
                             if (detail.isPoster && detail.status != 'DRAFT') ...<Widget>[
                               const SizedBox(height: AppTokens.s24),
-                              Text(
-                                l10n.applicantsSectionTitle,
-                                style: Theme.of(context).textTheme.titleLarge,
-                              ),
+                              Text(l10n.applicantsSectionTitle, style: Theme.of(context).textTheme.titleLarge),
                               const SizedBox(height: AppTokens.s12),
                               if (detail.applications.isEmpty)
                                 Text(l10n.noApplicantsYet)
@@ -575,27 +564,13 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                               spacing: AppTokens.s12,
                                               runSpacing: AppTokens.s4,
                                               children: <Widget>[
-                                                Text(
-                                                  appItem.workerName,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .titleMedium,
-                                                ),
-                                                Text(
-                                                  appItem.status.toUpperCase(),
-                                                  style: AppTokens.monoTabular.copyWith(
-                                                    fontSize: 13,
-                                                    color: AppTokens.held,
-                                                  ),
-                                                ),
+                                                Text(appItem.workerName, style: Theme.of(context).textTheme.titleMedium),
+                                                Text(appItem.status.toUpperCase(), style: AppTokens.monoTabular.copyWith(fontSize: 13, color: AppTokens.held)),
                                               ],
                                             ),
                                             const SizedBox(height: AppTokens.s4),
-                                            Text(
-                                              'Trust ${appItem.workerTrustLevel} · Responsiveness ${appItem.workerResponsivenessScore}%',
-                                              style: AppTokens.monoTabular.copyWith(fontSize: 12),
-                                            ),
-                                            if (appItem.status == 'pending') ...<Widget>[
+                                            Text('Trust ${appItem.workerTrustLevel} · Responsiveness ${appItem.workerResponsivenessScore}%', style: AppTokens.monoTabular.copyWith(fontSize: 12)),
+                                            if (detail.status == 'OPEN' && appItem.status == 'pending') ...<Widget>[
                                               const SizedBox(height: AppTokens.s12),
                                               Row(
                                                 children: <Widget>[
@@ -605,11 +580,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                                       onPressed: jobsState.busy
                                                           ? null
                                                           : () async {
-                                                              final ok = await controller
-                                                                  .acceptApplicant(
-                                                                detail.id,
-                                                                appItem.id,
-                                                              );
+                                                              final ok = await controller.acceptApplicant(detail.id, appItem.id);
                                                               if (ok) await _reload();
                                                             },
                                                       child: Text(l10n.acceptApplicantButton),
@@ -621,11 +592,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                                     onPressed: jobsState.busy
                                                         ? null
                                                         : () async {
-                                                            final ok = await controller
-                                                                .rejectApplicant(
-                                                              detail.id,
-                                                              appItem.id,
-                                                            );
+                                                            final ok = await controller.rejectApplicant(detail.id, appItem.id);
                                                             if (ok) await _reload();
                                                           },
                                                     child: Text(l10n.rejectApplicantButton),
@@ -640,7 +607,6 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                   );
                                 }),
                             ],
-
                             if (jobsState.errorMessage != null) ...<Widget>[
                               const SizedBox(height: AppTokens.s16),
                               Container(
@@ -652,12 +618,8 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                                   border: Border.all(color: AppTokens.danger),
                                 ),
                                 child: Text(
-                                  jobsState.errorMessage == 'NETWORK_ERROR'
-                                      ? l10n.networkErrorMessage
-                                      : jobsState.errorMessage!,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        color: AppTokens.danger,
-                                      ),
+                                  jobsState.errorMessage == 'NETWORK_ERROR' ? l10n.networkErrorMessage : jobsState.errorMessage!,
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTokens.danger),
                                 ),
                               ),
                             ],
@@ -673,7 +635,6 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
 
 class _DetailRow extends StatelessWidget {
   const _DetailRow({required this.label, required this.value});
-
   final String label;
   final String value;
 
@@ -684,13 +645,7 @@ class _DetailRow extends StatelessWidget {
       children: <Widget>[
         Flexible(child: Text(label, style: Theme.of(context).textTheme.bodyMedium)),
         const SizedBox(width: AppTokens.s12),
-        Flexible(
-          child: Text(
-            value,
-            textAlign: TextAlign.end,
-            style: AppTokens.monoTabular.copyWith(fontSize: 13),
-          ),
-        ),
+        Flexible(child: Text(value, textAlign: TextAlign.end, style: AppTokens.monoTabular.copyWith(fontSize: 13))),
       ],
     );
   }

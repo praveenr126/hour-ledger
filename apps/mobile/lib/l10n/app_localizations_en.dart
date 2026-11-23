@@ -293,4 +293,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ratingSubmittedBanner => 'Rating recorded on the ledger';
+
+  @override
+  String get raiseDisputeButton => 'Raise dispute and freeze escrow';
+
+  @override
+  String get disputeCardTitle => 'Escrow dispute';
+
+  @override
+  String get disputeReasonLabel => 'Dispute reason';
+
+  @override
+  String get disputeEvidenceLabel => 'Supporting note (optional)';
+
+  @override
+  String get submitDisputeButton => 'Freeze escrow and submit dispute';
+
+  @override
+  String get disputeFrozenBanner => 'Escrow is frozen pending admin review';
 }

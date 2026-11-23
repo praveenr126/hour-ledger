@@ -198,6 +198,41 @@ class ShiftSummary {
   }
 }
 
+class JobDispute {
+  const JobDispute({
+    required this.raisedBy,
+    required this.reason,
+    required this.evidenceNote,
+    required this.status,
+    required this.resolutionNote,
+    required this.workerPayoutPaise,
+    required this.platformFeePaise,
+    required this.posterRefundPaise,
+  });
+
+  final String raisedBy;
+  final String reason;
+  final String evidenceNote;
+  final String status;
+  final String? resolutionNote;
+  final int? workerPayoutPaise;
+  final int? platformFeePaise;
+  final int? posterRefundPaise;
+
+  factory JobDispute.fromJson(JsonMap json) {
+    return JobDispute(
+      raisedBy: json["raised_by"] as String,
+      reason: json["reason"] as String,
+      evidenceNote: (json["evidence_note"] as String?) ?? "",
+      status: json["status"] as String,
+      resolutionNote: json["resolution_note"] as String?,
+      workerPayoutPaise: (json["worker_payout_paise"] as num?)?.toInt(),
+      platformFeePaise: (json["platform_fee_paise"] as num?)?.toInt(),
+      posterRefundPaise: (json["poster_refund_paise"] as num?)?.toInt(),
+    );
+  }
+}
+
 class JobDetail {
   const JobDetail({
     required this.id,
@@ -220,6 +255,7 @@ class JobDetail {
     required this.myApplication,
     required this.shift,
     required this.hasRated,
+    required this.dispute,
   });
 
   final String id;
@@ -242,12 +278,14 @@ class JobDetail {
   final MyJobApplication? myApplication;
   final ShiftSummary? shift;
   final bool hasRated;
+  final JobDispute? dispute;
 
   factory JobDetail.fromJson(JsonMap json) {
     final rawChecklist = (json['checklist'] as List<dynamic>?) ?? <dynamic>[];
     final rawApps = (json['applications'] as List<dynamic>?) ?? <dynamic>[];
     final rawMine = json['my_application'] as JsonMap?;
     final rawShift = json['shift'] as JsonMap?;
+    final rawDispute = json['dispute'] as JsonMap?;
 
     return JobDetail(
       id: json['id'] as String,
@@ -272,6 +310,7 @@ class JobDetail {
       myApplication: rawMine == null ? null : MyJobApplication.fromJson(rawMine),
       shift: rawShift == null ? null : ShiftSummary.fromJson(rawShift),
       hasRated: json['my_rating'] != null,
+      dispute: rawDispute == null ? null : JobDispute.fromJson(rawDispute),
     );
   }
 }

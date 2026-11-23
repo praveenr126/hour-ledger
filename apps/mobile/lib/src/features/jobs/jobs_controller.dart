@@ -371,4 +371,32 @@ class JobsController extends StateNotifier<JobsState> {
       return false;
     }
   }
+  Future<bool> raiseDispute({
+    required String jobId,
+    required String reason,
+    String? evidenceNote,
+  }) async {
+    if (state.busy) return false;
+    state = state.copyWith(busy: true, clearError: true);
+    try {
+      await _api.postJson(
+        "/jobs/$jobId/dispute",
+        <String, dynamic>{
+          "reason": reason.trim(),
+          if (evidenceNote != null && evidenceNote.trim().isNotEmpty)
+            "evidence_note": evidenceNote.trim(),
+        },
+        authenticated: true,
+      );
+      await refreshAll();
+      state = state.copyWith(busy: false);
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(busy: false, errorMessage: e.message);
+      return false;
+    } catch (_) {
+      state = state.copyWith(busy: false, errorMessage: "NETWORK_ERROR");
+      return false;
+    }
+  }
 }
