@@ -675,6 +675,46 @@ export async function registerJobRoutes(
         }
       }
 
+      const shiftRes = await pool.query<{
+        worker_id: string;
+        checked_in_at: Date | null;
+        checkin_distance_m: number | null;
+        completed_checklist: string[];
+        checked_out_at: Date | null;
+        actual_minutes: number | null;
+        payable_minutes: number | null;
+        gross_earned_paise: string | null;
+        worker_payout_paise: string | null;
+        platform_fee_paise: string | null;
+        poster_refund_paise: string | null;
+        approved_at: Date | null;
+      }>(
+        `SELECT worker_id, checked_in_at, checkin_distance_m, completed_checklist,
+                checked_out_at, actual_minutes, payable_minutes,
+                gross_earned_paise, worker_payout_paise, platform_fee_paise,
+                poster_refund_paise, approved_at
+           FROM job_shifts
+          WHERE job_id = $1`,
+        [jobId]
+      );
+      const sr = shiftRes.rows[0];
+      const shift = sr
+        ? {
+            worker_id: sr.worker_id,
+            checked_in_at: sr.checked_in_at ? sr.checked_in_at.toISOString() : null,
+            checkin_distance_m: sr.checkin_distance_m,
+            completed_checklist: sr.completed_checklist ?? [],
+            checked_out_at: sr.checked_out_at ? sr.checked_out_at.toISOString() : null,
+            actual_minutes: sr.actual_minutes,
+            payable_minutes: sr.payable_minutes,
+            gross_earned_paise: sr.gross_earned_paise !== null ? Number(sr.gross_earned_paise) : null,
+            worker_payout_paise: sr.worker_payout_paise !== null ? Number(sr.worker_payout_paise) : null,
+            platform_fee_paise: sr.platform_fee_paise !== null ? Number(sr.platform_fee_paise) : null,
+            poster_refund_paise: sr.poster_refund_paise !== null ? Number(sr.poster_refund_paise) : null,
+            approved_at: sr.approved_at ? sr.approved_at.toISOString() : null
+          }
+        : null;
+
       return reply.code(200).send({
         id: job.id,
         poster_id: job.poster_id,
@@ -696,7 +736,8 @@ export async function registerJobRoutes(
         status: job.status,
         is_poster: isPoster,
         applications,
-        my_application: myApplication
+        my_application: myApplication,
+        shift
       });
     }
   );

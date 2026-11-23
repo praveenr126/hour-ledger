@@ -1,0 +1,21 @@
+CREATE TABLE job_shifts (
+  job_id UUID PRIMARY KEY REFERENCES jobs(id) ON DELETE RESTRICT,
+  worker_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+  checkin_nonce TEXT NOT NULL,
+  checked_in_at TIMESTAMPTZ,
+  checkin_lat DOUBLE PRECISION,
+  checkin_lng DOUBLE PRECISION,
+  checkin_distance_m INTEGER,
+  completed_checklist JSONB NOT NULL DEFAULT '[]'::jsonb,
+  checked_out_at TIMESTAMPTZ,
+  actual_minutes INTEGER CHECK (actual_minutes IS NULL OR actual_minutes >= 0),
+  payable_minutes INTEGER CHECK (payable_minutes IS NULL OR payable_minutes >= 0),
+  gross_earned_paise BIGINT CHECK (gross_earned_paise IS NULL OR gross_earned_paise >= 0),
+  worker_payout_paise BIGINT CHECK (worker_payout_paise IS NULL OR worker_payout_paise >= 0),
+  platform_fee_paise BIGINT CHECK (platform_fee_paise IS NULL OR platform_fee_paise >= 0),
+  poster_refund_paise BIGINT CHECK (poster_refund_paise IS NULL OR poster_refund_paise >= 0),
+  approved_at TIMESTAMPTZ,
+  settlement_txn_id UUID,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
