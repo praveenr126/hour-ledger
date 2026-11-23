@@ -119,4 +119,124 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get networkErrorMessage =>
       'Could not reach the HourLedger server. Check that the local API is running.';
+
+  @override
+  String get tabBrowse => 'Browse';
+
+  @override
+  String get tabMyJobs => 'My jobs';
+
+  @override
+  String get tabPostJob => 'Post job';
+
+  @override
+  String get tabWalletProfile => 'Wallet';
+
+  @override
+  String get browseJobsTitle => 'Open jobs nearby';
+
+  @override
+  String get noOpenJobsTitle => 'No open jobs right now';
+
+  @override
+  String get noOpenJobsSubtitle =>
+      'Post a funded job or check back shortly for new hourly shifts.';
+
+  @override
+  String get postJobTitle => 'Post an hourly job';
+
+  @override
+  String get postJobSubtitle =>
+      'Save a draft job first, then fund escrow from your wallet to open it for applicants.';
+
+  @override
+  String get jobTitleLabel => 'Job title';
+
+  @override
+  String get jobTitleHint => 'Store inventory count';
+
+  @override
+  String get jobDescriptionLabel => 'Work description';
+
+  @override
+  String get jobDescriptionHint =>
+      'Describe tasks, dress code, and check-in point';
+
+  @override
+  String get hourlyRateLabel => 'Hourly rate (Rs)';
+
+  @override
+  String get hoursLabel => 'Duration (hours)';
+
+  @override
+  String get addressLabel => 'Work location';
+
+  @override
+  String get addressHint => 'MG Road, Mangaluru';
+
+  @override
+  String get startsInHoursLabel => 'Starts in (hours from now)';
+
+  @override
+  String get checklistItemLabel => 'Checklist task (optional)';
+
+  @override
+  String get createDraftButton => 'Save draft job';
+
+  @override
+  String get jobDetailTitle => 'Job and escrow details';
+
+  @override
+  String get escrowHeldLabel => 'Escrow held';
+
+  @override
+  String get totalPayoutLabel => 'Total payout';
+
+  @override
+  String get fundEscrowButton => 'Fund escrow and open job';
+
+  @override
+  String get applyJobButton => 'Apply for this job';
+
+  @override
+  String get applicantsSectionTitle => 'Applicants';
+
+  @override
+  String get noApplicantsYet => 'No applicants yet.';
+
+  @override
+  String get acceptApplicantButton => 'Accept';
+
+  @override
+  String get rejectApplicantButton => 'Reject';
+
+  @override
+  String get yourApplicationTitle => 'Your application';
+
+  @override
+  String get myJobsTitle => 'Posted and applied jobs';
+
+  @override
+  String get postedJobsSection => 'Jobs you posted';
+
+  @override
+  String get appliedJobsSection => 'Jobs you applied to';
+
+  @override
+  String get noPostedJobs => 'You have not posted any jobs yet.';
+
+  @override
+  String get noAppliedJobs => 'You have not applied to any jobs yet.';
+
+  @override
+  String get simulateTopupButton => 'Add Rs 1,000 demo funds';
+
+  @override
+  String get ledgerHistoryTitle => 'Wallet ledger entries';
+
+  @override
+  String get noLedgerEntries => 'No wallet transactions yet.';
+
+  @override
+  String get refreshButton => 'Refresh';
 }

@@ -44,9 +44,9 @@ class AppTokens {
 }
 
 ThemeData buildAppTheme() {
-  final outlineSide = const BorderSide(color: AppTokens.hairline, width: 1.0);
-  final focusedSide = const BorderSide(color: AppTokens.ink, width: 1.5);
-  final errorSide = const BorderSide(color: AppTokens.danger, width: 1.5);
+  const outlineSide = BorderSide(color: AppTokens.hairline, width: 1.0);
+  const focusedSide = BorderSide(color: AppTokens.ink, width: 1.5);
+  const errorSide = BorderSide(color: AppTokens.danger, width: 1.5);
 
   return ThemeData(
     useMaterial3: true,
@@ -75,6 +75,28 @@ ThemeData buildAppTheme() {
         fontWeight: FontWeight.w700,
         color: AppTokens.ink,
       ),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: AppTokens.paper,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      indicatorColor: AppTokens.paperInset,
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return TextStyle(
+          fontFamily: AppTokens.bodyFont,
+          fontSize: 12,
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          color: selected ? AppTokens.action : AppTokens.ink,
+        );
+      }),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return IconThemeData(
+          color: selected ? AppTokens.action : AppTokens.ink,
+          size: 22,
+        );
+      }),
     ),
     cardTheme: const CardThemeData(
       color: AppTokens.paper,

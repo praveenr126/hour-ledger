@@ -4,8 +4,8 @@ import 'l10n/app_localizations.dart';
 import 'src/core/theme/app_theme.dart';
 import 'src/features/auth/auth_controller.dart';
 import 'src/features/auth/login_screen.dart';
+import 'src/features/jobs/home_shell_screen.dart';
 import 'src/features/profile/verification_screen.dart';
-import 'src/features/profile/verified_profile_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +31,7 @@ class HourLedgerApp extends ConsumerWidget {
           ),
         AuthStage.unauthenticated || AuthStage.otpSent => const LoginScreen(),
         AuthStage.authenticated => auth.profile != null && auth.profile!.ageVerified
-            ? VerifiedProfileScreen(profile: auth.profile!)
+            ? HomeShellScreen(profile: auth.profile!)
             : const VerificationScreen(),
       },
     );

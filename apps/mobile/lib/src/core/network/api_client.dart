@@ -17,7 +17,7 @@ class ApiException implements Exception {
   final String message;
 
   @override
-  String toString() => 'ApiException($statusCode, $code: $message)';
+  String toString() => 'ApiException($statusCode, $code:$message)';
 }
 
 class ApiClient {
@@ -33,7 +33,6 @@ class ApiClient {
   final http.Client _http;
   final Future<void> Function()? onSessionExpired;
 
-  // Single-flight lock so concurrent 401 responses share one refresh call.
   Future<bool>? _refreshInFlight;
 
   Uri _uri(String path) => Uri.parse('$baseUrl$path');
@@ -42,12 +41,13 @@ class ApiClient {
     String path,
     JsonMap body, {
     bool authenticated = false,
+    String? idempotencyKey,
   }) async {
     final res = await _sendWithAutoRefresh(
       authenticated: authenticated,
       send: (accessToken) => _http.post(
         _uri(path),
-        headers: _headers(accessToken),
+        headers: _headers(accessToken, idempotencyKey: idempotencyKey),
         body: jsonEncode(body),
       ),
     );
@@ -68,11 +68,12 @@ class ApiClient {
     return _decodeResponse(res);
   }
 
-  Map<String, String> _headers(String? accessToken) {
+  Map<String, String> _headers(String? accessToken, {String? idempotencyKey}) {
     return <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       if (accessToken != null) 'Authorization': 'Bearer $accessToken',
+      if (idempotencyKey != null) 'Idempotency-Key': idempotencyKey,
     };
   }
 

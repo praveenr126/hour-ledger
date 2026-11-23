@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../core/theme/app_theme.dart';
 import '../auth/auth_controller.dart';
+import '../jobs/jobs_controller.dart';
 import 'profile_models.dart';
 
 class VerifiedProfileScreen extends ConsumerWidget {
@@ -13,7 +14,10 @@ class VerifiedProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final controller = ref.read(authControllerProvider.notifier);
+    final authController = ref.read(authControllerProvider.notifier);
+    final jobsState = ref.watch(jobsControllerProvider);
+    final jobsController = ref.read(jobsControllerProvider.notifier);
+    final balancePaise = jobsState.ledger.balancePaise;
 
     return Scaffold(
       appBar: AppBar(
@@ -22,7 +26,7 @@ class VerifiedProfileScreen extends ConsumerWidget {
           IconButton(
             key: const Key('logout_button'),
             tooltip: l10n.signOutButton,
-            onPressed: () => controller.logout(),
+            onPressed: () => authController.logout(),
             icon: const Icon(Icons.logout_outlined),
           ),
         ],
@@ -30,7 +34,7 @@ class VerifiedProfileScreen extends ConsumerWidget {
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 460),
+            constraints: const BoxConstraints(maxWidth: 520),
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppTokens.s24),
               child: Column(
@@ -83,9 +87,18 @@ class VerifiedProfileScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: AppTokens.s8),
                           Text(
-                            UserProfile.formatPaise(profile.walletBalancePaise),
+                            UserProfile.formatPaise(balancePaise),
                             key: const Key('wallet_balance_text'),
                             style: AppTokens.monoTabular.copyWith(fontSize: 28),
+                          ),
+                          const SizedBox(height: AppTokens.s16),
+                          OutlinedButton.icon(
+                            key: const Key('simulate_topup_button'),
+                            onPressed: jobsState.busy
+                                ? null
+                                : () => jobsController.topupDemoWallet(),
+                            icon: const Icon(Icons.add_card_outlined, size: 18),
+                            label: Text(l10n.simulateTopupButton),
                           ),
                           const SizedBox(height: AppTokens.s16),
                           const Divider(),
@@ -108,6 +121,51 @@ class VerifiedProfileScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: AppTokens.s24),
+                  Text(
+                    l10n.ledgerHistoryTitle,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: AppTokens.s12),
+                  if (jobsState.ledger.entries.isEmpty)
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppTokens.s16),
+                        child: Text(l10n.noLedgerEntries),
+                      ),
+                    )
+                  else
+                    ...jobsState.ledger.entries.map((entry) {
+                      final isCredit = entry.amountPaise >= 0;
+                      final prefix = isCredit ? '+' : '';
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: AppTokens.s8),
+                        child: Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(AppTokens.s12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Flexible(
+                                  child: Text(
+                                    entry.reason,
+                                    style: AppTokens.monoTabular.copyWith(fontSize: 13),
+                                  ),
+                                ),
+                                const SizedBox(width: AppTokens.s12),
+                                Text(
+                                  '$prefix${UserProfile.formatPaise(entry.amountPaise)}',
+                                  style: AppTokens.monoTabular.copyWith(
+                                    fontSize: 14,
+                                    color: isCredit ? AppTokens.held : AppTokens.ink,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
                 ],
               ),
             ),

@@ -123,6 +123,24 @@ class FakeBackend {
         );
       }
 
+      if (path.endsWith('/jobs')) {
+        return http.Response(jsonEncode(<String, dynamic>{'jobs': <dynamic>[]}), 200);
+      }
+
+      if (path.endsWith('/my/jobs')) {
+        return http.Response(
+          jsonEncode(<String, dynamic>{'posted': <dynamic>[], 'applied': <dynamic>[]}),
+          200,
+        );
+      }
+
+      if (path.endsWith('/wallet/ledger')) {
+        return http.Response(
+          jsonEncode(<String, dynamic>{'wallet_balance_paise': 0, 'entries': <dynamic>[]}),
+          200,
+        );
+      }
+
       if (path.endsWith('/auth/logout')) {
         return http.Response(jsonEncode(<String, dynamic>{'status': 'logged_out'}), 200);
       }
@@ -149,7 +167,6 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // 1. Request OTP
     await tester.enterText(find.byKey(const Key('phone_input')), '+919876543210');
     await tester.tap(find.byKey(const Key('send_otp_button')));
     await tester.pumpAndSettle();
@@ -157,17 +174,16 @@ void main() {
     expect(find.byKey(const Key('dev_otp_banner')), findsOneWidget);
     expect(find.text('482910'), findsOneWidget);
 
-    // 2. Verify OTP -> lands on 18+ Verification screen
     await tester.enterText(find.byKey(const Key('otp_input')), '482910');
     await tester.tap(find.byKey(const Key('verify_otp_button')));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('verified_name_input')), findsOneWidget);
 
-    // 3. Complete 18+ verification + liveness -> lands on Verified Profile
     await tester.enterText(find.byKey(const Key('verified_name_input')), 'Asha Rao');
     await tester.enterText(find.byKey(const Key('dob_input')), '2001-08-15');
     await tester.enterText(find.byKey(const Key('id_number_input')), 'PQRSX9876K');
+
     await tester.ensureVisible(find.byKey(const Key('liveness_button')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('liveness_button')));
@@ -176,6 +192,9 @@ void main() {
     await tester.ensureVisible(find.byKey(const Key('submit_verification_button')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('submit_verification_button')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('nav_wallet_tab')));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('verified_status_badge')), findsOneWidget);
@@ -244,7 +263,6 @@ void main() {
       const AuthTokens(accessToken: 'access-initial', refreshToken: 'refresh-initial'),
     );
 
-    // Mount #1
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -256,9 +274,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('nav_wallet_tab')));
+    await tester.pumpAndSettle();
     expect(find.text('Kiran Nair'), findsOneWidget);
 
-    // Tear down widget tree (simulating app kill) and mount a brand-new ProviderScope
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
 
@@ -272,6 +291,8 @@ void main() {
         child: const HourLedgerApp(),
       ),
     );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('nav_wallet_tab')));
     await tester.pumpAndSettle();
 
     expect(find.text('Kiran Nair'), findsOneWidget);
@@ -304,17 +325,20 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-
     expect(tester.takeException(), isNull);
 
-    final ctx = tester.element(find.byType(Scaffold));
+    await tester.tap(find.byKey(const Key('nav_wallet_tab')));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    final ctx = tester.element(find.byType(NavigationBar));
     final l10n = AppLocalizations.of(ctx)!;
     final sampleStrings = <String>[
       l10n.appTitle,
-      l10n.signInTitle,
-      l10n.signInSubtitle,
-      l10n.verifyIdentitySubtitle,
-      l10n.verifiedStatusLabel,
+      l10n.browseJobsTitle,
+      l10n.postJobSubtitle,
+      l10n.fundEscrowButton,
+      l10n.simulateTopupButton,
       l10n.networkErrorMessage,
     ];
     for (final s in sampleStrings) {

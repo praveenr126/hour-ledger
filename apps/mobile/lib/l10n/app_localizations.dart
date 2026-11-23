@@ -313,6 +313,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not reach the HourLedger server. Check that the local API is running.'**
   String get networkErrorMessage;
+
+  /// No description provided for @tabBrowse.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse'**
+  String get tabBrowse;
+
+  /// No description provided for @tabMyJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'My jobs'**
+  String get tabMyJobs;
+
+  /// No description provided for @tabPostJob.
+  ///
+  /// In en, this message translates to:
+  /// **'Post job'**
+  String get tabPostJob;
+
+  /// No description provided for @tabWalletProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get tabWalletProfile;
+
+  /// No description provided for @browseJobsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open jobs nearby'**
+  String get browseJobsTitle;
+
+  /// No description provided for @noOpenJobsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No open jobs right now'**
+  String get noOpenJobsTitle;
+
+  /// No description provided for @noOpenJobsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Post a funded job or check back shortly for new hourly shifts.'**
+  String get noOpenJobsSubtitle;
+
+  /// No description provided for @postJobTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Post an hourly job'**
+  String get postJobTitle;
+
+  /// No description provided for @postJobSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a draft job first, then fund escrow from your wallet to open it for applicants.'**
+  String get postJobSubtitle;
+
+  /// No description provided for @jobTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Job title'**
+  String get jobTitleLabel;
+
+  /// No description provided for @jobTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Store inventory count'**
+  String get jobTitleHint;
+
+  /// No description provided for @jobDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Work description'**
+  String get jobDescriptionLabel;
+
+  /// No description provided for @jobDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe tasks, dress code, and check-in point'**
+  String get jobDescriptionHint;
+
+  /// No description provided for @hourlyRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hourly rate (Rs)'**
+  String get hourlyRateLabel;
+
+  /// No description provided for @hoursLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration (hours)'**
+  String get hoursLabel;
+
+  /// No description provided for @addressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Work location'**
+  String get addressLabel;
+
+  /// No description provided for @addressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'MG Road, Mangaluru'**
+  String get addressHint;
+
+  /// No description provided for @startsInHoursLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts in (hours from now)'**
+  String get startsInHoursLabel;
+
+  /// No description provided for @checklistItemLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Checklist task (optional)'**
+  String get checklistItemLabel;
+
+  /// No description provided for @createDraftButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save draft job'**
+  String get createDraftButton;
+
+  /// No description provided for @jobDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Job and escrow details'**
+  String get jobDetailTitle;
+
+  /// No description provided for @escrowHeldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Escrow held'**
+  String get escrowHeldLabel;
+
+  /// No description provided for @totalPayoutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total payout'**
+  String get totalPayoutLabel;
+
+  /// No description provided for @fundEscrowButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Fund escrow and open job'**
+  String get fundEscrowButton;
+
+  /// No description provided for @applyJobButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply for this job'**
+  String get applyJobButton;
+
+  /// No description provided for @applicantsSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Applicants'**
+  String get applicantsSectionTitle;
+
+  /// No description provided for @noApplicantsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No applicants yet.'**
+  String get noApplicantsYet;
+
+  /// No description provided for @acceptApplicantButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get acceptApplicantButton;
+
+  /// No description provided for @rejectApplicantButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get rejectApplicantButton;
+
+  /// No description provided for @yourApplicationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your application'**
+  String get yourApplicationTitle;
+
+  /// No description provided for @myJobsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted and applied jobs'**
+  String get myJobsTitle;
+
+  /// No description provided for @postedJobsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Jobs you posted'**
+  String get postedJobsSection;
+
+  /// No description provided for @appliedJobsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Jobs you applied to'**
+  String get appliedJobsSection;
+
+  /// No description provided for @noPostedJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'You have not posted any jobs yet.'**
+  String get noPostedJobs;
+
+  /// No description provided for @noAppliedJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'You have not applied to any jobs yet.'**
+  String get noAppliedJobs;
+
+  /// No description provided for @simulateTopupButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Rs 1,000 demo funds'**
+  String get simulateTopupButton;
+
+  /// No description provided for @ledgerHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet ledger entries'**
+  String get ledgerHistoryTitle;
+
+  /// No description provided for @noLedgerEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'No wallet transactions yet.'**
+  String get noLedgerEntries;
+
+  /// No description provided for @refreshButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refreshButton;
 }
 
 class _AppLocalizationsDelegate

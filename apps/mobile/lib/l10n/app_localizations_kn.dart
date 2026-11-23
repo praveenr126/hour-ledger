@@ -118,4 +118,122 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get networkErrorMessage => 'ಸರ್ವರ್ ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.';
+
+  @override
+  String get tabBrowse => 'ಕೆಲಸಗಳು';
+
+  @override
+  String get tabMyJobs => 'ನನ್ನ ಕೆಲಸಗಳು';
+
+  @override
+  String get tabPostJob => 'ಕೆಲಸ ಪೋಸ್ಟ್';
+
+  @override
+  String get tabWalletProfile => 'ವಾಲೆಟ್';
+
+  @override
+  String get browseJobsTitle => 'ಹತ್ತಿರದ ತೆರೆದ ಕೆಲಸಗಳು';
+
+  @override
+  String get noOpenJobsTitle => 'ಪ್ರಸ್ತುತ ಯಾವುದೇ ತೆರೆದ ಕೆಲಸಗಳಿಲ್ಲ';
+
+  @override
+  String get noOpenJobsSubtitle =>
+      'ಹೊಸ ಕೆಲಸ ಪೋಸ್ಟ್ ಮಾಡಿ ಅಥವಾ ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಪರಿಶೀಲಿಸಿ.';
+
+  @override
+  String get postJobTitle => 'ಗಂಟೆಯ ಕೆಲಸ ಪೋಸ್ಟ್ ಮಾಡಿ';
+
+  @override
+  String get postJobSubtitle => 'ಮೊದಲು ಡ್ರಾಫ್ಟ್ ಉಳಿಸಿ, ನಂತರ ಎಸ್ಕ್ರೊಗೆ ಹಣ ಹಾಕಿ.';
+
+  @override
+  String get jobTitleLabel => 'ಕೆಲಸದ ಶೀರ್ಷಿಕೆ';
+
+  @override
+  String get jobTitleHint => 'ಸ್ಟೋರ್ ದಾಸ್ತಾನು ಎಣಿಕೆ';
+
+  @override
+  String get jobDescriptionLabel => 'ಕೆಲಸದ ವಿವರಣೆ';
+
+  @override
+  String get jobDescriptionHint => 'ಕಾರ್ಯಗಳು ಮತ್ತು ಸ್ಥಳದ ವಿವರ';
+
+  @override
+  String get hourlyRateLabel => 'ಗಂಟೆಯ ದರ (Rs)';
+
+  @override
+  String get hoursLabel => 'ಅವಧಿ (ಗಂಟೆಗಳು)';
+
+  @override
+  String get addressLabel => 'ಕೆಲಸದ ಸ್ಥಳ';
+
+  @override
+  String get addressHint => 'ಎಂ.ಜಿ. ರಸ್ತೆ, ಮಂಗಳೂರು';
+
+  @override
+  String get startsInHoursLabel => 'ಪ್ರಾರಂಭವಾಗುವ ಸಮಯ (ಗಂಟೆಗಳಲ್ಲಿ)';
+
+  @override
+  String get checklistItemLabel => 'ಪರಿಶೀಲನಾ ಪಟ್ಟಿ ಕಾರ್ಯ (ಐಚ್ಛಿಕ)';
+
+  @override
+  String get createDraftButton => 'ಡ್ರಾಫ್ಟ್ ಉಳಿಸಿ';
+
+  @override
+  String get jobDetailTitle => 'ಕೆಲಸ ಮತ್ತು ಎಸ್ಕ್ರೊ ವಿವರಗಳು';
+
+  @override
+  String get escrowHeldLabel => 'ಎಸ್ಕ್ರೊ ಮೊತ್ತ';
+
+  @override
+  String get totalPayoutLabel => 'ಒಟ್ಟು ಪಾವತಿ';
+
+  @override
+  String get fundEscrowButton => 'ಎಸ್ಕ್ರೊಗೆ ಹಣ ಹಾಕಿ ಕೆಲಸ ತೆರೆಯಿರಿ';
+
+  @override
+  String get applyJobButton => 'ಈ ಕೆಲಸಕ್ಕೆ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ';
+
+  @override
+  String get applicantsSectionTitle => 'ಅರ್ಜಿದಾರರು';
+
+  @override
+  String get noApplicantsYet => 'ಇನ್ನೂ ಯಾವುದೇ ಅರ್ಜಿದಾರರಿಲ್ಲ.';
+
+  @override
+  String get acceptApplicantButton => 'ಒಪ್ಪಿಕೊಳ್ಳಿ';
+
+  @override
+  String get rejectApplicantButton => 'ನಿರಾಕರಿಸಿ';
+
+  @override
+  String get yourApplicationTitle => 'ನಿಮ್ಮ ಅರ್ಜಿ';
+
+  @override
+  String get myJobsTitle => 'ಪೋಸ್ಟ್ ಮಾಡಿದ ಮತ್ತು ಅರ್ಜಿ ಸಲ್ಲಿಸಿದ ಕೆಲಸಗಳು';
+
+  @override
+  String get postedJobsSection => 'ನೀವು ಪೋಸ್ಟ್ ಮಾಡಿದ ಕೆಲಸಗಳು';
+
+  @override
+  String get appliedJobsSection => 'ನೀವು ಅರ್ಜಿ ಸಲ್ಲಿಸಿದ ಕೆಲಸಗಳು';
+
+  @override
+  String get noPostedJobs => 'ನೀವು ಇನ್ನೂ ಯಾವುದೇ ಕೆಲಸಗಳನ್ನು ಪೋಸ್ಟ್ ಮಾಡಿಲ್ಲ.';
+
+  @override
+  String get noAppliedJobs => 'ನೀವು ಇನ್ನೂ ಯಾವುದೇ ಕೆಲಸಗಳಿಗೆ ಅರ್ಜಿ ಸಲ್ಲಿಸಿಲ್ಲ.';
+
+  @override
+  String get simulateTopupButton => 'Rs 1,000 ಡೆಮೊ ಹಣ ಸೇರಿಸಿ';
+
+  @override
+  String get ledgerHistoryTitle => 'ವಾಲೆಟ್ ಲೆಡ್ಜರ್ ದಾಖಲೆಗಳು';
+
+  @override
+  String get noLedgerEntries => 'ಇನ್ನೂ ಯಾವುದೇ ವಹಿವಾಟುಗಳಿಲ್ಲ.';
+
+  @override
+  String get refreshButton => 'ರಿಫ್ರೆಶ್';
 }
