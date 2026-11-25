@@ -39,7 +39,7 @@ export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
   return {
     databaseUrl,
     host: overrides.host ?? process.env.API_HOST ?? '0.0.0.0',
-    port: overrides.port ?? Number(process.env.API_PORT ?? 3000),
+    port: overrides.port ?? Number(process.env.PORT ?? process.env.API_PORT ?? 3000),
     jwtSecret,
     otpPepper,
     idHashSalt,
