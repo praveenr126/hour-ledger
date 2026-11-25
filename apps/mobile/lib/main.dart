@@ -20,7 +20,7 @@ class HourLedgerApp extends ConsumerWidget {
     final auth = ref.watch(authControllerProvider);
 
     return MaterialApp(
-      onGenerateTitle: (ctx) => AppLocalizations.of(ctx)!.appTitle,
+      title: 'Hour Ledger',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
