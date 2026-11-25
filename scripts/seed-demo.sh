@@ -16,9 +16,9 @@ login_and_verify() {
   echo "$token"
 }
 
-POSTER_TOKEN=$(login_and_verify "+919800000001" "Asha Rao" "DEMO10001A")
-WORKER1_TOKEN=$(login_and_verify "+919800000002" "Kiran Nair" "DEMO10002B")
-WORKER2_TOKEN=$(login_and_verify "+919800000003" "Meera Shetty" "DEMO10003C")
+POSTER_TOKEN=$(login_and_verify "+919800000001" "Asha Rao" "ABCDE1234F")
+WORKER1_TOKEN=$(login_and_verify "+919800000002" "Kiran Nair" "ABCDE2345G")
+WORKER2_TOKEN=$(login_and_verify "+919800000003" "Meera Shetty" "ABCDE3456H")
 
 curl -fsS -X POST "$API_URL/wallet/topup" -H "Content-Type: application/json" -H "Authorization: Bearer $POSTER_TOKEN" \
   -H "Idempotency-Key: demo-topup-asha-001" -d '{"amount_paise":250000}' >/dev/null
