@@ -15,8 +15,8 @@ interface CreateJobBody {
   checklist?: string[];
   hourly_rate_paise: number;
   hours: number;
-  lat: number;
-  lng: number;
+  lat?: number;
+  lng?: number;
   radius_m?: number;
   address_text?: string;
   start_at: string;
@@ -44,7 +44,7 @@ export async function registerJobRoutes(
       schema: {
         body: {
           type: 'object',
-          required: ['title', 'description', 'hourly_rate_paise', 'hours', 'lat', 'lng', 'start_at'],
+          required: ['title', 'description', 'hourly_rate_paise', 'hours', 'start_at'],
           additionalProperties: false,
           properties: {
             title: { type: 'string', minLength: 3, maxLength: 120 },
@@ -131,8 +131,8 @@ export async function registerJobRoutes(
             JSON.stringify(cleanChecklist),
             body.hourly_rate_paise,
             body.hours,
-            body.lat,
-            body.lng,
+            body.lat ?? 0,
+            body.lng ?? 0,
             body.radius_m ?? 100,
             (body.address_text ?? '').trim(),
             startDate.toISOString()
@@ -171,8 +171,8 @@ export async function registerJobRoutes(
         hourly_rate_paise: Number(outcome.job.hourly_rate_paise),
         hours: outcome.job.hours,
         total_paise: totalPaise,
-        lat: body.lat,
-        lng: body.lng,
+        lat: body.lat ?? 0,
+        lng: body.lng ?? 0,
         radius_m: body.radius_m ?? 100,
         address_text: (body.address_text ?? '').trim(),
         start_at: outcome.job.start_at.toISOString(),
