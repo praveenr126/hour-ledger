@@ -502,7 +502,7 @@ export async function registerJobRoutes(
                 COUNT(a.id) FILTER (WHERE a.status = 'pending') AS pending_count
            FROM jobs j
            LEFT JOIN applications a ON a.job_id = j.id
-          WHERE j.poster_id = $1
+          WHERE j.poster_id = $1 AND j.is_hidden = false
           GROUP BY j.id
           ORDER BY j.created_at DESC`,
         [userId]
@@ -1169,6 +1169,47 @@ export async function registerJobRoutes(
         application_id: appId,
         status: 'rejected'
       });
+    }
+  );
+
+  // DELETE /v1/jobs/:id (poster removes a non-active job)
+  app.delete<{ Params: { id: string } }>(
+    '/jobs/:id',
+    {
+      preHandler: [authenticate],
+      schema: {
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: { id: { type: 'string', pattern: UUID_PATTERN } }
+        }
+      }
+    },
+    async (req, reply) => {
+      const userId = req.user.sub;
+      const jobId = req.params.id;
+      const jobRes = await pool.query<{ id: string; poster_id: string; status: string }>(
+        'SELECT id, poster_id, status FROM jobs WHERE id = $1',
+        [jobId]
+      );
+      if (jobRes.rowCount === 0) {
+        return reply.code(404).send({ error: 'JOB_NOT_FOUND', message: 'Job not found' });
+      }
+      const job = jobRes.rows[0];
+      if (job.poster_id !== userId) {
+        return reply.code(403).send({ error: 'FORBIDDEN', message: 'Only the job poster can remove this job' });
+      }
+      if (job.status === 'IN_PROGRESS') {
+        return reply.code(409).send({ error: 'INVALID_JOB_STATUS', message: 'Cannot remove a job that is currently in progress' });
+      }
+      await pool.query('DELETE FROM applications WHERE job_id = $1', [jobId]).catch(() => {});
+      await pool.query('DELETE FROM job_shifts WHERE job_id = $1', [jobId]).catch(() => {});
+      try {
+        await pool.query('DELETE FROM jobs WHERE id = $1 AND poster_id = $2', [jobId, userId]);
+      } catch {
+        await pool.query('UPDATE jobs SET is_hidden = true WHERE id = $1', [jobId]);
+      }
+      return reply.code(200).send({ deleted: true, id: jobId });
     }
   );
 }
