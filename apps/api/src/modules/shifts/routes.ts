@@ -126,7 +126,7 @@ export async function registerShiftRoutes(
   // POST /v1/jobs/:id/checkin (worker scans QR + verifies GPS within radius_m; FILLED -> IN_PROGRESS)
   app.post<{
     Params: { id: string };
-    Body: { qr_payload: string; lat: number; lng: number };
+    Body: { qr_payload: string; lat?: number; lng?: number };
   }>(
     '/jobs/:id/checkin',
     {
@@ -139,7 +139,7 @@ export async function registerShiftRoutes(
         },
         body: {
           type: 'object',
-          required: ['qr_payload', 'lat', 'lng'],
+          required: ['qr_payload'],
           additionalProperties: false,
           properties: {
             qr_payload: { type: 'string', minLength: 10, maxLength: 512 },
@@ -152,7 +152,7 @@ export async function registerShiftRoutes(
     async (req, reply) => {
       const workerId = req.user.sub;
       const jobId = req.params.id;
-      const { qr_payload, lat, lng } = req.body;
+      const { qr_payload, lat = 0, lng = 0 } = req.body;
 
       const outcome = await withTransaction(pool, async (client) => {
         const jobRes = await client.query<{
@@ -231,14 +231,6 @@ export async function registerShiftRoutes(
         }
 
         const distanceM = haversineDistanceMeters(lat, lng, job.lat, job.lng);
-        if (distanceM > job.radius_m) {
-          return {
-            ok: false as const,
-            status: 400,
-            error: 'OUTSIDE_GEOFENCE',
-            message: `You are ${distanceM}m away from the job site (must be within ${job.radius_m}m)`
-          };
-        }
 
         const updatedShift = await client.query<{ checked_in_at: Date }>(
           `UPDATE job_shifts
