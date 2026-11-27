@@ -258,4 +258,53 @@ export async function registerProfileRoutes(
       }
     }
   );
+
+  // POST /v1/profile/update (edit display name & home locality)
+  app.post<{ Body: { verified_name?: string; locality?: string } }>(
+    '/profile/update',
+    {
+      preHandler: [authenticate],
+      schema: {
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            verified_name: { type: 'string', minLength: 2, maxLength: 100 },
+            locality: { type: 'string', maxLength: 250 }
+          }
+        }
+      }
+    },
+    async (req, reply) => {
+      const name = req.body.verified_name?.trim();
+      const locality = req.body.locality?.trim();
+
+      if (name === undefined && locality === undefined) {
+        return reply.code(400).send({
+          error: 'VALIDATION_ERROR',
+          message: 'Provide verified_name or locality to update'
+        });
+      }
+
+      const res = await pool.query<{
+        id: string;
+        verified_name: string | null;
+        locality: string;
+      }>(
+        `UPDATE users
+            SET verified_name = COALESCE($2, verified_name),
+                locality = COALESCE($3, locality),
+                updated_at = now()
+          WHERE id = $1
+         RETURNING id, verified_name, locality`,
+        [req.user.sub, name ?? null, locality ?? null]
+      );
+
+      if (res.rowCount === 0) {
+        return reply.code(404).send({ error: 'USER_NOT_FOUND', message: 'User not found' });
+      }
+
+      return reply.code(200).send(res.rows[0]);
+    }
+  );
 }
