@@ -460,18 +460,18 @@ export async function registerJobRoutes(
       if (hasGeo) {
         const latIdx = params.push(lat);
         const lngIdx = params.push(lng);
-        distExpr = `(
+        distExpr = `CASE WHEN j.lat = 0 AND j.lng = 0 THEN NULL ELSE (
           6371000 * 2 * ASIN(SQRT(
             POWER(SIN(RADIANS(j.lat - $${latIdx}) / 2), 2) +
             COS(RADIANS($${latIdx})) * COS(RADIANS(j.lat)) *
             POWER(SIN(RADIANS(j.lng - $${lngIdx}) / 2), 2)
           ))
-        ) AS distance_m`;
+        ) END AS distance_m`;
       }
 
       const outerWhere =
         hasGeo && typeof radius_km === 'number'
-          ? `WHERE sub.distance_m <= $${params.push(radius_km * 1000)}`
+          ? `WHERE sub.distance_m IS NOT NULL AND sub.distance_m <= $${params.push(radius_km * 1000)}`
           : '';
 
       const orderClause = hasGeo

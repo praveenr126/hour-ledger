@@ -484,6 +484,8 @@ export async function registerAuthRoutes(
       status: string;
       verified_name: string | null;
       age_verified_at: Date | null;
+      id_type: string | null;
+      id_last4: string | null;
       is_18_verified: boolean;
       trust_level: number;
       trust_score: number;
@@ -495,6 +497,7 @@ export async function registerAuthRoutes(
       balance_paise: string;
     }>(
       `SELECT u.id, u.phone, u.role, u.status, u.verified_name, u.age_verified_at,
+              u.id_type, u.id_last4,
               u.is_18_verified, u.trust_level, u.trust_score, u.cancellation_count,
               u.avg_rating::text, u.rating_count, u.responsiveness_score, u.locality,
               w.balance_paise
@@ -517,6 +520,9 @@ export async function registerAuthRoutes(
       status: row.status,
       verified_name: row.verified_name,
       age_verified: verified,
+      age_verified_at: row.age_verified_at ? row.age_verified_at.toISOString() : null,
+      id_type: row.id_type,
+      id_last4: row.id_last4,
       is_18_verified: verified,
       trust_level: row.trust_level,
       trust_score: row.trust_score,
