@@ -53,8 +53,9 @@ export async function registerShiftRoutes(
           id: string;
           poster_id: string;
           status: string;
+          hired_count: number;
         }>(
-          `SELECT id, poster_id, status FROM jobs WHERE id = $1 FOR UPDATE`,
+          `SELECT id, poster_id, status, hired_count FROM jobs WHERE id = $1 FOR UPDATE`,
           [jobId]
         );
 
@@ -65,7 +66,7 @@ export async function registerShiftRoutes(
         if (job.poster_id !== posterId) {
           return { ok: false as const, status: 403, error: 'FORBIDDEN', message: 'Only the poster can generate check-in QR' };
         }
-        if (job.status !== 'FILLED') {
+        if (job.status !== 'FILLED' && !(job.status === 'OPEN' && job.hired_count > 0)) {
           return {
             ok: false as const,
             status: 409,
@@ -159,11 +160,12 @@ export async function registerShiftRoutes(
           id: string;
           poster_id: string;
           status: string;
+          hired_count: number;
           lat: number;
           lng: number;
           radius_m: number;
         }>(
-          `SELECT id, poster_id, status, lat, lng, radius_m
+          `SELECT id, poster_id, status, hired_count, lat, lng, radius_m
              FROM jobs
             WHERE id = $1
               FOR UPDATE`,
@@ -174,7 +176,7 @@ export async function registerShiftRoutes(
           return { ok: false as const, status: 404, error: 'JOB_NOT_FOUND', message: 'Job not found' };
         }
         const job = jobRes.rows[0];
-        if (job.status !== 'FILLED') {
+        if (job.status !== 'FILLED' && !(job.status === 'OPEN' && job.hired_count > 0)) {
           return {
             ok: false as const,
             status: 409,

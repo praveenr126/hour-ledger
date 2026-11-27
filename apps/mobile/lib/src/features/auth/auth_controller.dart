@@ -6,7 +6,7 @@ import '../profile/profile_models.dart';
 
 const String defaultApiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'http://10.0.2.2:3000/v1',
+  defaultValue: 'https://hour-ledger.onrender.com/v1',
 );
 
 final apiBaseUrlProvider = Provider<String>((ref) => defaultApiBaseUrl);

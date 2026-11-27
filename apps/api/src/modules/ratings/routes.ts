@@ -30,7 +30,7 @@ export async function registerRatingRoutes(
   // POST /v1/jobs/:id/rate (mutual 1-5 star rating on COMPLETED job)
   app.post<{
     Params: { id: string };
-    Body: { stars: number; comment?: string };
+    Body: { stars: number; comment?: string; review?: string };
   }>(
     '/jobs/:id/rate',
     {
@@ -47,7 +47,8 @@ export async function registerRatingRoutes(
           additionalProperties: false,
           properties: {
             stars: { type: 'integer', minimum: 1, maximum: 5 },
-            comment: { type: 'string', maxLength: 500 }
+            comment: { type: 'string', maxLength: 500 },
+            review: { type: 'string', maxLength: 500 }
           }
         }
       }
@@ -55,8 +56,8 @@ export async function registerRatingRoutes(
     async (req, reply) => {
       const raterId = req.user.sub;
       const jobId = req.params.id;
-      const { stars, comment } = req.body;
-      const trimmedComment = (comment ?? '').trim();
+      const { stars, comment, review } = req.body;
+      const trimmedComment = (review ?? comment ?? '').trim();
 
       try {
         const outcome = await withTransaction(pool, async (client) => {
@@ -119,21 +120,21 @@ export async function registerRatingRoutes(
           }
 
           const insertRes = await client.query<{ id: string; created_at: Date }>(
-            `INSERT INTO ratings (job_id, rater_id, ratee_id, ${scoreCol}, comment)
-             VALUES ($1, $2, $3, $4, $5)
+            `INSERT INTO ratings (job_id, rater_id, ratee_id, ${scoreCol}, comment, review)
+             VALUES ($1, $2, $3, $4, $5, $5)
              RETURNING id, created_at`,
             [jobId, raterId, rateeId, stars, trimmedComment]
           );
 
-          if (stars >= 4) {
-            await client.query(
-              `UPDATE users
-                  SET trust_level = LEAST(5, trust_level + 1),
-                      updated_at = now()
-                WHERE id = $1`,
-              [rateeId]
-            );
-          }
+          await client.query(
+            `UPDATE users
+                SET avg_rating = (SELECT COALESCE(ROUND(AVG(${scoreCol})::numeric, 2), 0) FROM ratings WHERE ratee_id = $1),
+                    rating_count = (SELECT COUNT(*)::integer FROM ratings WHERE ratee_id = $1),
+                    trust_level = CASE WHEN $2 >= 4 THEN LEAST(5, trust_level + 1) ELSE trust_level END,
+                    updated_at = now()
+              WHERE id = $1`,
+            [rateeId, stars]
+          );
 
           await client.query(
             `INSERT INTO notifications (user_id, type, payload)

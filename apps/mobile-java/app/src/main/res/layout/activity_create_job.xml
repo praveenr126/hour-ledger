@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F7F4EE">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Post a Shift"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#18181B" />
+
+            <Button
+                android:id="@+id/btnBackHome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Back"
+                android:backgroundTint="#E4E4E7"
+                android:textColor="#18181B" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/etJobTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Shift Title (e.g., Store Inventory Helper)"
+            android:padding="12dp"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginTop="16dp" />
+
+        <EditText
+            android:id="@+id/etJobDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Description of tasks"
+            android:minLines="2"
+            android:padding="12dp"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginTop="10dp" />
+
+        <EditText
+            android:id="@+id/etJobCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Category (e.g., retail, logistics, events)"
+            android:text="retail"
+            android:padding="12dp"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginTop="10dp" />
+
+        <EditText
+            android:id="@+id/etHourlyRateRupees"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Hourly Rate (INR)"
+            android:text="150"
+            android:inputType="number"
+            android:padding="12dp"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginTop="10dp" />
+
+        <EditText
+            android:id="@+id/etDurationHours"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Duration (Hours)"
+            android:text="2"
+            android:inputType="number"
+            android:padding="12dp"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginTop="10dp" />
+
+        <EditText
+            android:id="@+id/etAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Location Address"
+            android:text="Hampankatta, Mangaluru"
+            android:padding="12dp"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginTop="10dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+
+            <EditText
+                android:id="@+id/etLat"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Latitude"
+                android:text="12.8700"
+                android:inputType="numberDecimal|numberSigned"
+                android:padding="12dp"
+                android:background="@android:drawable/edit_text" />
+
+            <EditText
+                android:id="@+id/etLng"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Longitude"
+                android:text="74.8426"
+                android:inputType="numberDecimal|numberSigned"
+                android:padding="12dp"
+                android:background="@android:drawable/edit_text"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnSubmitJob"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Publish Job"
+            android:backgroundTint="#C2410C"
+            android:textColor="#FFFFFF"
+            android:padding="12dp"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:id="@+id/tvCreateStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#3F3F46"
+            android:textSize="13sp"
+            android:layout_marginTop="12dp" />
+
+    </LinearLayout>
+</ScrollView>

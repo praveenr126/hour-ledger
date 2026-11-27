@@ -11,6 +11,9 @@ import { registerJobRoutes } from './modules/jobs/routes.js';
 import { registerShiftRoutes } from './modules/shifts/routes.js';
 import { registerRatingRoutes } from './modules/ratings/routes.js';
 import { registerAdminAndDisputeRoutes } from './modules/admin/routes.js';
+import { registerChatRoutes } from './modules/chat/routes.js';
+import { registerNotificationRoutes } from './modules/notifications/routes.js';
+import { registerWorkerRoutes } from './modules/workers/routes.js';
 
 export interface BuildAppOptions {
   config: AppConfig;
@@ -34,7 +37,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   app.addHook('onRequest', async (req, reply) => {
     reply.header('Access-Control-Allow-Origin', '*');
     reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Idempotency-Key, x-admin-key');
-    reply.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     if (req.method === 'OPTIONS') {
       return reply.code(204).send();
     }
@@ -73,6 +76,9 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
       await registerShiftRoutes(v1, { pool, config });
       await registerRatingRoutes(v1, { pool });
       await registerAdminAndDisputeRoutes(v1, { pool, config });
+      await registerChatRoutes(v1, { pool });
+      await registerNotificationRoutes(v1, { pool });
+      await registerWorkerRoutes(v1, { pool });
     },
     { prefix: '/v1' }
   );

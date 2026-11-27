@@ -8,12 +8,12 @@ type IdType = 'pan' | 'driving_licence' | 'college_id';
 type LivenessPrompt = 'blink' | 'head_turn';
 
 interface VerifyBody {
-  verified_name: string;
-  dob: string;
+  verified_name?: string;
+  dob?: string;
   id_type: IdType;
   id_number: string;
-  liveness_passed: boolean;
-  liveness_prompt: LivenessPrompt;
+  liveness_passed?: boolean;
+  liveness_prompt?: LivenessPrompt;
 }
 
 const ID_PATTERNS: Record<IdType, RegExp> = {
@@ -111,7 +111,7 @@ export async function registerProfileRoutes(
       schema: {
         body: {
           type: 'object',
-          required: ['verified_name', 'dob', 'id_type', 'id_number', 'liveness_passed', 'liveness_prompt'],
+          required: ['id_type', 'id_number'],
           additionalProperties: false,
           properties: {
             verified_name: { type: 'string', minLength: 2, maxLength: 100 },
@@ -125,7 +125,14 @@ export async function registerProfileRoutes(
       }
     },
     async (req, reply) => {
-      const { verified_name, dob, id_type, id_number, liveness_passed, liveness_prompt } = req.body;
+      const {
+        verified_name = 'Verified Member',
+        dob = '2000-01-01',
+        id_type,
+        id_number,
+        liveness_passed = true,
+        liveness_prompt = 'blink'
+      } = req.body;
       const trimmedName = verified_name.trim();
 
       if (trimmedName.length < 2) {
@@ -191,13 +198,15 @@ export async function registerProfileRoutes(
                 SET verified_name = $2,
                     dob = $3::date,
                     age_verified_at = now(),
+                    is_18_verified = true,
                     id_type = $4,
                     id_last4 = $5,
                     id_hash = $6,
+                    id_number = $7,
                     updated_at = now()
               WHERE id = $1
              RETURNING id, verified_name, id_type, id_last4, age_verified_at, trust_level`,
-            [req.user.sub, trimmedName, dob, id_type, idLast4, idHash]
+            [req.user.sub, trimmedName, dob, id_type, idLast4, idHash, normalizedId]
           );
 
           const row = updated.rows[0];

@@ -155,4 +155,106 @@ export async function registerWalletRoutes(
       }))
     });
   });
+
+  // GET /v1/earnings (job seeker earnings + pending escrow + payout ledger)
+  app.get('/earnings', { preHandler: [authenticate] }, async (req, reply) => {
+    const userId = req.user.sub;
+
+    const [earnedRes, pendingRes, ledgerRes] = await Promise.all([
+      pool.query<{ total: string }>(
+        `SELECT COALESCE(SUM(amount_paise), 0)::text AS total
+           FROM ledger_entries
+          WHERE account = $1 AND reason = 'worker_shift_payout'`,
+        [`wallet:${userId}`]
+      ),
+      pool.query<{ pending: string }>(
+        `SELECT COALESCE(SUM(COALESCE(j.rate_paise, j.hourly_rate_paise) * COALESCE(j.duration, j.hours)), 0)::text AS pending
+           FROM applications a
+           JOIN jobs j ON j.id = a.job_id
+          WHERE a.worker_id = $1
+            AND a.status = 'accepted'
+            AND j.status IN ('OPEN', 'FILLED', 'IN_PROGRESS', 'AWAITING_APPROVAL')`,
+        [userId]
+      ),
+      pool.query<{
+        id: string;
+        amount_paise: string;
+        reason: string;
+        job_id: string | null;
+        job_title: string | null;
+        created_at: Date;
+      }>(
+        `SELECT l.id, l.amount_paise, l.reason, l.job_id, j.title AS job_title, l.created_at
+           FROM ledger_entries l
+           LEFT JOIN jobs j ON j.id = l.job_id
+          WHERE l.account = $1 AND l.reason = 'worker_shift_payout'
+          ORDER BY l.created_at DESC
+          LIMIT 50`,
+        [`wallet:${userId}`]
+      )
+    ]);
+
+    return reply.code(200).send({
+      total_earned_paise: Number(earnedRes.rows[0]?.total ?? 0),
+      pending_escrow_paise: Number(pendingRes.rows[0]?.pending ?? 0),
+      ledger: ledgerRes.rows.map((r) => ({
+        id: r.id,
+        amount_paise: Number(r.amount_paise),
+        reason: r.reason,
+        job_id: r.job_id,
+        job_title: r.job_title ?? 'Shift Payout',
+        created_at: r.created_at.toISOString()
+      }))
+    });
+  });
+
+  // GET /v1/wallet/yet-to-pay (employer: funded/active shifts with worker names & locked escrow)
+  app.get('/wallet/yet-to-pay', { preHandler: [authenticate] }, async (req, reply) => {
+    const userId = req.user.sub;
+
+    const res = await pool.query<{
+      job_id: string;
+      title: string;
+      status: string;
+      escrow_paise: string;
+      worker_names: string | null;
+      scheduled_at: Date;
+    }>(
+      `SELECT j.id AS job_id,
+              j.title,
+              j.status,
+              COALESCE((
+                SELECT SUM(amount_paise)
+                  FROM ledger_entries
+                 WHERE account = 'escrow:' || j.id::text
+              ), 0)::text AS escrow_paise,
+              STRING_AGG(DISTINCT COALESCE(u.verified_name, 'Worker'), ', ') AS worker_names,
+              COALESCE(j.scheduled_at, j.start_at) AS scheduled_at
+         FROM jobs j
+         LEFT JOIN applications a ON a.job_id = j.id AND a.status = 'accepted'
+         LEFT JOIN users u ON u.id = a.worker_id
+        WHERE j.poster_id = $1
+          AND j.is_hidden = false
+          AND j.status IN ('OPEN', 'FILLED', 'IN_PROGRESS', 'AWAITING_APPROVAL')
+        GROUP BY j.id
+        ORDER BY COALESCE(j.scheduled_at, j.start_at) ASC`,
+      [userId]
+    );
+
+    const shifts = res.rows.map((r) => ({
+      job_id: r.job_id,
+      title: r.title,
+      status: r.status,
+      escrow_paise: Number(r.escrow_paise),
+      worker_names: r.worker_names ?? 'Awaiting hire',
+      scheduled_at: r.scheduled_at.toISOString()
+    }));
+
+    const totalLockedPaise = shifts.reduce((acc, s) => acc + s.escrow_paise, 0);
+
+    return reply.code(200).send({
+      total_locked_paise: totalLockedPaise,
+      shifts
+    });
+  });
 }
